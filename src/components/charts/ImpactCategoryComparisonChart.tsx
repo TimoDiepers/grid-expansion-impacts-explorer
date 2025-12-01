@@ -58,7 +58,6 @@ export function ImpactCategoryComparisonChart() {
               data={chartData}
               layout="vertical"
               barGap={2}
-              margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#374151" />
               <XAxis
@@ -99,7 +98,7 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="base"
                 fill="var(--color-base)"
-                radius={[0, 6, 6, 0]}
+                radius={[0, 8, 8, 0]}
                 isAnimationActive={true}
                 animationDuration={1200}
                 animationBegin={0}
@@ -107,7 +106,7 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="pkBudg1000"
                 fill="var(--color-pkBudg1000)"
-                radius={[0, 6, 6, 0]}
+                radius={[0, 8, 8, 0]}
                 isAnimationActive={true}
                 animationDuration={1200}
                 animationBegin={200}
@@ -115,7 +114,7 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="pkBudg650"
                 fill="var(--color-pkBudg650)"
-                radius={[0, 6, 6, 0]}
+                radius={[0, 8, 8, 0]}
                 isAnimationActive={true}
                 animationDuration={1200}
                 animationBegin={400}

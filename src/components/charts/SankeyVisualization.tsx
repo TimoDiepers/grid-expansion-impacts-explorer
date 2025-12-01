@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "framer-motion";
-import { sankey as d3Sankey, sankeyLinkHorizontal } from "d3-sankey";
+import { sankey as d3Sankey } from "d3-sankey";
 import { sankeyData } from "@/data";
 
 // Node colors - organized by category
@@ -115,6 +115,8 @@ export function SankeyVisualization() {
 
   const { width: chartWidth, height: chartHeight } = useContainerSize(containerRef);
   const baseGraph = useMemo(() => buildSankeyGraph(), []);
+  const nodeWidth = 22;
+  const linkInset = nodeWidth / 2; // pull links slightly into node bodies to align with rounded corners
 
   const { nodes, links } = useMemo(() => {
     // Ultra-tight margins so the diagram hugs the container edges
@@ -122,8 +124,8 @@ export function SankeyVisualization() {
 
     const sankey = d3Sankey<SankeyNodeDatum, SankeyLinkDatum>()
       .nodeId((d) => d.name)
-      .nodeWidth(22)
-      .nodePadding(22)
+      .nodeWidth(nodeWidth)
+      .nodePadding(nodeWidth)
       .extent([
         [margin.left, margin.top],
         [chartWidth - margin.right, chartHeight - margin.bottom],
@@ -137,7 +139,20 @@ export function SankeyVisualization() {
     return { nodes: graph.nodes, links: graph.links };
   }, [baseGraph, chartWidth, chartHeight]);
 
-  const linkPath = useMemo(() => sankeyLinkHorizontal<SankeyNodeDatum, SankeyLinkDatum>(), []);
+  const linkPath = useMemo(
+    () =>
+      (link: SankeyLinkDatum) => {
+        const source = link.source as SankeyNodeDatum;
+        const target = link.target as SankeyNodeDatum;
+        const x0 = (source.x1 ?? 0) - linkInset;
+        const x1 = (target.x0 ?? 0) + linkInset;
+        const y0 = link.y0 ?? 0;
+        const y1 = link.y1 ?? 0;
+        const xi = (x0 + x1) / 2;
+        return `M${x0},${y0}C${xi},${y0} ${xi},${y1} ${x1},${y1}`;
+      },
+    [linkInset]
+  );
 
   // Staged fade: leftmost column first, then its outgoing links, then next column, etc.
   // Use small stagger so layers overlap while still revealing left-to-right
@@ -172,6 +187,7 @@ export function SankeyVisualization() {
   const [hoveredLinkKey, setHoveredLinkKey] = useState<string | null>(null);
   const [hoveredLinkNodes, setHoveredLinkNodes] = useState<[string, string] | null>(null);
   const [hoveredNodeName, setHoveredNodeName] = useState<string | null>(null);
+  const [adjacentNodes, setAdjacentNodes] = useState<Set<string>>(new Set());
 
   return (
     <div className="w-full">
@@ -184,10 +200,10 @@ export function SankeyVisualization() {
         </p>
       </div>
 
-      <div className="w-full overflow-x-auto -mx-2 px-2">
+      <div className="w-full overflow-x-auto p-0 lg:p-4">
         <div
           ref={containerRef}
-          className="relative min-w-[760px] h-[440px] sm:h-[500px] rounded-xl"
+          className="relative min-w-[760px] h-auto rounded-xl"
         >
           <svg
             width="100%"
@@ -207,9 +223,9 @@ export function SankeyVisualization() {
                     key={gradientId}
                     id={gradientId}
                     gradientUnits="userSpaceOnUse"
-                    x1={source.x1 ?? 0}
+                    x1={(source.x1 ?? 0) - linkInset}
                     y1={(link.y0 ?? 0) + (link.width ?? 0) / 2}
-                    x2={target.x0 ?? chartWidth}
+                    x2={(target.x0 ?? chartWidth) + linkInset}
                     y2={(link.y1 ?? 0) + (link.width ?? 0) / 2}
                   >
                     <stop offset="0%" stopColor={source.color} stopOpacity={0.82} />
@@ -285,7 +301,8 @@ export function SankeyVisualization() {
                 const labelX = isLeft ? (node.x1 ?? 0) + 6 : isRight ? (node.x0 ?? 0) - 6 : cx;
                 const nodeHighlighted =
                   hoveredNodeName === node.name ||
-                  (hoveredLinkNodes?.includes(node.name) ?? false);
+                  (hoveredLinkNodes?.includes(node.name) ?? false) ||
+                  adjacentNodes.has(node.name);
                 const nodeDimming =
                   hoveredLinkKey !== null || hoveredNodeName !== null || hoveredLinkNodes !== null;
                 const nodeOpacity = hasAnimated
@@ -303,8 +320,8 @@ export function SankeyVisualization() {
                       y={node.y0}
                       width={nodeWidth}
                       height={nodeHeight}
-                      rx={3}
-                      ry={3}
+                      rx={8}
+                      ry={8}
                       fill={node.color}
                       fillOpacity={nodeOpacity}
                       className="shadow-sm"
@@ -318,6 +335,15 @@ export function SankeyVisualization() {
                       }}
                       onMouseMove={(event) => {
                         setHoveredNodeName(node.name);
+                        // highlight adjacent nodes (sources/targets connected to this node)
+                        const connected = links.reduce<Set<string>>((acc, link) => {
+                          const s = (link.source as SankeyNodeDatum).name;
+                          const t = (link.target as SankeyNodeDatum).name;
+                          if (s === node.name) acc.add(t);
+                          if (t === node.name) acc.add(s);
+                          return acc;
+                        }, new Set<string>());
+                        setAdjacentNodes(connected);
                         setTooltip({
                           x: event.clientX + 12,
                           y: event.clientY + 12,
@@ -328,6 +354,7 @@ export function SankeyVisualization() {
                       onMouseLeave={() => {
                         setTooltip(null);
                         setHoveredNodeName(null);
+                        setAdjacentNodes(new Set());
                       }}
                     />
 

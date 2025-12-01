@@ -650,7 +650,7 @@ function App() {
                 Toggle categories and scenarios to see how shares shift over time
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-2 sm:p-5 sm:pt-2">
               <MaterialContributionChart />
             </CardContent>
           </Card>

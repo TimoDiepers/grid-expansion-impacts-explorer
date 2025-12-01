@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "framer-motion";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import { plotDatasets, scenarioOptions, type PlotDatasetKey, type ScenarioKey } from "@/data/plotData";
+import { plotDatasets, scenarioOptions, scenarioColors, type PlotDatasetKey, type ScenarioKey } from "@/data/plotData";
 import type { ChartConfig } from "@/components/ui/chart";
 import {
   ChartContainer,
@@ -11,7 +11,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const datasetOptions: { key: PlotDatasetKey; label: string }[] = [
   { key: "materials", label: "Materials" },
@@ -20,39 +19,52 @@ const datasetOptions: { key: PlotDatasetKey; label: string }[] = [
   { key: "expansion", label: "Time periods" },
 ];
 
-const chartBaseConfig = {
-  BAU: { label: "Business as Usual", color: "#94a3b8" }, // neutral zinc tone to match UI
-  scenario: { label: "Scenario", color: "#38bdf8" },
-} satisfies ChartConfig;
+// Display order for scenarios (align plot and toggles): BAU, 3°C, 2°C, 1.5°C
+const scenarioOrder: ScenarioKey[] = ["scen3", "scen2", "scen15"];
 
 export function MaterialContributionChart() {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [ready, setReady] = useState(false);
   const [datasetKey, setDatasetKey] = useState<PlotDatasetKey>("materials");
-  const [scenario, setScenario] = useState<ScenarioKey>("scen15");
 
   useEffect(() => {
     if (isInView && !ready) setReady(true);
   }, [isInView, ready]);
 
   const chartConfig = useMemo<ChartConfig>(() => {
-    const selected = scenarioOptions.find((s) => s.key === scenario)?.label ?? "Scenario";
-    return {
-      ...chartBaseConfig,
-      scenario: { label: selected, color: chartBaseConfig.scenario.color },
-    };
-  }, [scenario]);
+    const orderedOptions = scenarioOrder
+      .map((key) => scenarioOptions.find((s) => s.key === key)!)
+      .filter(Boolean);
+
+    return orderedOptions.reduce<ChartConfig>(
+      (acc, option) => ({
+        ...acc,
+        [option.key]: { label: option.label, color: scenarioColors[option.key] },
+      }),
+      { BAU: { label: "Business as Usual", color: "#6b7280" } }
+    );
+  }, []);
 
   const { chartData, maxValue } = useMemo(() => {
     const rows = plotDatasets[datasetKey];
-    const entries = rows.map((row) => ({
-      category: row.label,
-      BAU: ready ? row.BAU : 0,
-      scenario: ready ? row[scenario] : 0,
-    }));
+    const entries = rows.map((row) => {
+      const scenarioValues = scenarioOrder.reduce<Record<string, number>>(
+        (acc, key) => ({ ...acc, [key]: ready ? row[key] : 0 }),
+        {}
+      );
 
-    const maxVal = Math.max(...rows.flatMap((r) => [r.BAU, r[scenario]]), 0);
+      return {
+        category: row.label,
+        BAU: ready ? row.BAU : 0,
+        ...scenarioValues,
+      };
+    });
+
+    const maxVal = Math.max(
+      ...rows.flatMap((r) => [r.BAU, ...scenarioOrder.map((key) => r[key])]),
+      0
+    );
 
     if (datasetKey === "expansion") {
       // Preserve chronological order for time-period view
@@ -68,7 +80,7 @@ export function MaterialContributionChart() {
       return b.BAU - a.BAU;
     });
     return { chartData: sorted, maxValue: maxVal };
-  }, [datasetKey, scenario, ready]);
+  }, [datasetKey, ready]);
 
   const yMax = useMemo(() => {
     // Use raw maxValue (not animated zeros) for stable baseline during fade-in
@@ -78,8 +90,8 @@ export function MaterialContributionChart() {
   }, [maxValue]);
 
   return (
-    <div ref={ref} className="w-full space-y-3">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div ref={ref} className="w-full space-y-2">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex gap-2 flex-wrap">
           {datasetOptions.map((option) => (
             <button
@@ -96,22 +108,9 @@ export function MaterialContributionChart() {
             </button>
           ))}
         </div>
-
-        <Select value={scenario} onValueChange={(v) => setScenario(v as ScenarioKey)}>
-          <SelectTrigger className="w-48 bg-zinc-900 border-zinc-800 text-sm">
-            <SelectValue placeholder="Select scenario" />
-          </SelectTrigger>
-          <SelectContent>
-            {scenarioOptions.map((opt) => (
-              <SelectItem key={opt.key} value={opt.key}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
-      <div className="w-full overflow-x-auto pb-2">
+      <div className="w-full overflow-x-auto">
         <div className="min-w-[640px] sm:min-w-0">
           <ChartContainer
             config={chartConfig}
@@ -119,7 +118,6 @@ export function MaterialContributionChart() {
           >
             <BarChart
               data={chartData}
-              margin={{ top: 12, right: 22, left: 12, bottom: 64 }}
               barGap={12}
               barCategoryGap={20}
             >
@@ -159,30 +157,40 @@ export function MaterialContributionChart() {
               />
               <ChartLegend
                 verticalAlign="top"
-                content={<ChartLegendContent className="text-[11px]" />}
+                content={(props) => (
+                  <ChartLegendContent
+                    {...props}
+                    payload={props.payload ? [...props.payload].reverse() : props.payload}
+                    className="text-[11px]"
+                  />
+                )}
               />
 
               <Bar
                 dataKey="BAU"
                 name="BAU"
                 fill="var(--color-BAU)"
-                radius={[6, 6, 0, 0]}
+                radius={[8, 8, 0, 0]}
                 isAnimationActive={true}
                 animationDuration={900}
                 animationEasing="ease-out"
                 style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
               />
-              <Bar
-                dataKey="scenario"
-                name="Scenario"
-                fill="var(--color-scenario)"
-                radius={[6, 6, 0, 0]}
-                isAnimationActive={true}
-                animationDuration={900}
-                animationBegin={120}
-                animationEasing="ease-out"
-                style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
-              />
+
+              {scenarioOrder.map((key, index) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  name={chartConfig[key]?.label as string}
+                  fill={`var(--color-${key})`}
+                  radius={[8, 8, 0, 0]}
+                  isAnimationActive={true}
+                  animationDuration={900}
+                  animationBegin={120 + index * 120}
+                  animationEasing="ease-out"
+                  style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
+                />
+              ))}
             </BarChart>
           </ChartContainer>
         </div>

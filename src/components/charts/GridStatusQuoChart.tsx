@@ -67,7 +67,6 @@ export function GridStatusQuoChart() {
             data={chartData}
             layout="vertical"
             barSize={20}
-            margin={{ top: 10, right: 16, left: 70, bottom: 10 }}
           >
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#374151" />
             <XAxis

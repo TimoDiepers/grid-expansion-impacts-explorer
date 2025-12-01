@@ -6,6 +6,13 @@ export const scenarioOptions: { key: ScenarioKey; label: string }[] = [
   { key: "scen15", label: "1.5°C scenario" },
 ];
 
+// Shared scenario colors across charts (aligned with ExpansionTimelineChart)
+export const scenarioColors: Record<ScenarioKey, string> = {
+  scen3: "#ef4444",   // 3°C scenario — red
+  scen2: "#3b82f6",   // 2°C scenario — blue
+  scen15: "#8b5cf6",  // 1.5°C scenario — violet
+};
+
 type ScenarioShares = {
   label: string;
   BAU: number;
