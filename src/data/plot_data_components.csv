@@ -1,0 +1,7 @@
+,BAU,3.0°C scenario,2.0°C scenario,1.5°C scenario
+substations,1,1,1,1
+transformers,4,4,3,3
+switchgears,8,8,8,8
+cables,43,35,32,30
+overhead lines,44,38,36,34
+SPACING,0,14,20,24

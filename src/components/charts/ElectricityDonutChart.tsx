@@ -1,4 +1,4 @@
-import { Pie, PieChart, Cell } from "recharts";
+import { Pie, PieChart, Cell, Sector } from "recharts";
 import {
   ChartContainer,
   ChartTooltip,
@@ -44,7 +44,7 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
       setHasAnimated(true);
     }
   }, [isInView, hasAnimated]);
-  
+
   const pieData = Object.entries(data.generation).map(([name, values]) => ({
     name,
     value: values.impact,
@@ -68,10 +68,27 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
     pieData.find((d) => d.name === "Grid infrastructure")!,
   ];
 
+  const gridIndex = sortedData.findIndex((d) => d.name === "Grid infrastructure");
+
   // Use zeroed data until in view
   const chartData = hasAnimated 
     ? sortedData 
     : sortedData.map(d => ({ ...d, value: 0 }));
+
+  const sliceShape = (props: any) => {
+    const isGrid = props?.payload?.name === "Grid infrastructure";
+    const outerRadius = (props.outerRadius ?? 0) + (isGrid ? 16 : 0);
+    const innerRadius = (props.innerRadius ?? 0) + (isGrid ? 8 : 0);
+    return (
+      <Sector
+        {...props}
+        outerRadius={outerRadius}
+        innerRadius={innerRadius}
+        stroke="transparent"
+        strokeWidth={1}
+      />
+    );
+  };
 
   // Build chart config dynamically
   const chartConfig = sortedData.reduce((acc, item) => {
@@ -87,9 +104,16 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
       {/* Half-circle chart with shadcn container */}
       <ChartContainer
         config={chartConfig}
-        className="w-full h-[280px] sm:h-[360px] md:h-[420px]"
+        className="relative w-full h-[280px] sm:h-[360px] md:h-[420px]"
       >
         <PieChart margin={{ top: -250, right: 0, bottom: 0, left: 0 }}>
+          <defs>
+            <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="20%">
+              <stop offset="0%" stopColor="#645de8ff" stopOpacity={1} />
+              <stop offset="100%" stopColor="#a855f7" stopOpacity={1} />
+            </linearGradient>
+          </defs>
+
           <ChartTooltip
             content={
               <ChartTooltipContent
@@ -106,30 +130,33 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
           />
           <Pie
             data={chartData}
-            cx="50%"
+            cx="48%"
             cy="82%"
             startAngle={180}
             endAngle={0}
             innerRadius="55%"
-            outerRadius="95%"
-            paddingAngle={1}
+            outerRadius="93%"
+            paddingAngle={2}
             dataKey="value"
             nameKey="name"
             isAnimationActive={true}
             animationDuration={1200}
             animationBegin={0}
+            shape={sliceShape}
           >
             {sortedData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.fill}
+                fill={entry.name === "Grid infrastructure" ? "url(#gridGrad)" : entry.fill}
                 fillOpacity={1}
                 opacity={1}
                 stroke="transparent"
                 strokeWidth={1}
+                className={entry.name === "Grid infrastructure" ? "grid-pulse" : undefined}
               />
             ))}
           </Pie>
+
           <ChartLegend
             verticalAlign="bottom"
             content={

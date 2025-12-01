@@ -202,6 +202,17 @@ h1, h2, h3, h4, h5, h6 {
   50% { transform: translateY(-10px); }
 }
 
+@keyframes grid-pulse {
+  0%, 100% {
+    transform: scale(0.96);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+}
+
 .animate-in {
   animation-duration: 200ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -228,4 +239,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+.grid-pulse {
+  animation: grid-pulse 2.4s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
 }

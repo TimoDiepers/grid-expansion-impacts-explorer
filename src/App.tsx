@@ -71,13 +71,18 @@ function SectionHeader({
   step: number;
   title: string;
   subtitle: string;
-  accent?: "blue" | "emerald" | "violet" | "amber";
+  accent?: "blue" | "emerald" | "violet" | "amber" | "cyan" | "rose" | "indigo" | "teal" | "lime";
 }) {
   const accentColors = {
     blue: "from-blue-500 to-cyan-500",
     emerald: "from-emerald-500 to-teal-500",
     violet: "from-violet-500 to-purple-500",
     amber: "from-amber-500 to-orange-500",
+    cyan: "from-cyan-400 to-blue-500",
+    rose: "from-rose-500 to-pink-500",
+    indigo: "from-indigo-500 to-sky-500",
+    teal: "from-teal-400 to-emerald-500",
+    lime: "from-lime-400 to-green-500",
   };
 
   return (
@@ -86,7 +91,7 @@ function SectionHeader({
         <div className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ${accentColors[accent]} flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg`}>
           {step}
         </div>
-        <Badge variant="secondary" className="text-xs">Step {step} of 6</Badge>
+        <Badge variant="secondary" className="text-xs">Step {step} of 7</Badge>
       </div>
       <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-100 tracking-tight mb-2">
         {title}
@@ -158,6 +163,14 @@ function App() {
   const totalGridImpact = gridStatusQuoComponents.reduce((sum, c) => sum + c.value, 0);
   const heroRef = useRef(null);
   const [selectedScenario, setSelectedScenario] = useState<"npi2045" | "pkBudg1000_2045" | "pkBudg650_2045">("pkBudg650_2045");
+  const baseGridShare = electricityImpactData.statusQuo.gridShare;
+
+  const formatGridDelta = (gridShare: number) => {
+    const delta = gridShare - baseGridShare;
+    if (Math.abs(delta) < 0.05) return "Baseline";
+    const sign = delta > 0 ? "+" : "";
+    return `${sign}${delta.toFixed(1)} pts vs 2023`;
+  };
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -294,13 +307,123 @@ function App() {
 
       {/* Main Content - Guided Tour */}
       <main className="max-w-6xl mx-auto px-4 py-16 sm:py-24 relative z-10">
-        {/* Section 1: Grid Status Quo */}
-        <AnimatedSection id="status-quo" className="mb-24 sm:mb-32">
+        {/* Section 1: Electricity Mix */}
+        <AnimatedSection className="mb-24 sm:mb-32">
           <SectionHeader
             step={1}
+            title="Electricity Generation Evolution"
+            subtitle="How the generation mix transforms and what it means for grid infrastructure's relative impact"
+            accent="teal"
+          />
+
+          <div className="flex flex-col gap-3 sm:gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              {[
+                {
+                  ...electricityImpactData.statusQuo,
+                  scenario: "Status Quo",
+                  impactLabel: `${electricityImpactData.statusQuo.totalGCO2e} g CO₂/kWh`,
+                },
+                {
+                  ...electricityImpactData[selectedScenario],
+                  scenario:
+                    selectedScenario === "npi2045"
+                      ? "3°C Scenario"
+                      : selectedScenario === "pkBudg1000_2045"
+                        ? "2°C Scenario"
+                        : "1.5°C Scenario",
+                  impactLabel: `${electricityImpactData[selectedScenario].totalGCO2e} g CO₂/kWh`,
+                },
+              ].map((scenario, index) => (
+                <motion.div
+                  key={`electricity-card-${index}`}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                >
+                  <Card className="card-hover">
+                    <CardHeader className="flex w-full flex-row items-center justify-between gap-3 space-y-0 p-4 sm:p-5">
+                      {scenario.scenario === "Status Quo" ? (
+                        <>
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <CardTitle className="text-xs sm:text-sm">
+                      Status Quo
+                    </CardTitle>
+                    <CardDescription className="text-[10px]">
+                      {scenario.year} • {scenario.impactLabel}
+                    </CardDescription>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-col gap-1 flex-1 min-w-0">
+                    <Select
+                      value={selectedScenario}
+                      onValueChange={(v) => setSelectedScenario(v as typeof selectedScenario)}
+                    >
+                      <SelectTrigger className="w-48 bg-zinc-900 border-zinc-800 text-sm">
+                        <SelectValue placeholder="Select scenario" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="npi2045">3°C (2045)</SelectItem>
+                        <SelectItem value="pkBudg1000_2045">2°C (2045)</SelectItem>
+                        <SelectItem value="pkBudg650_2045">1.5°C (2045)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <CardDescription className="text-[10px]">
+                      {scenario.year} • {scenario.impactLabel}
+                    </CardDescription>
+                  </div>
+                </>
+              )}
+                <div className="flex items-center flex-shrink-0">
+                  <div className="flex items-center gap-2 rounded-lg border border-indigo-400/40 bg-gradient-to-br from-[#645de8] to-[#a855f7] px-3 py-2 shadow-lg shadow-indigo-900/30 text-left min-w-[160px]">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-200 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-100" />
+                    </span>
+                    <div className="leading-tight">
+                      <div className="text-[10px] uppercase tracking-[0.08em] text-indigo-100">Grid share</div>
+                      <div className="flex items-center gap-2 text-xs text-white">
+                        <span className="font-semibold">{scenario.gridShare.toFixed(1)}%</span>
+                        <span className="text-[10px] text-indigo-100/80">{formatGridDelta(scenario.gridShare)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+                    <CardContent className="px-2 pb-4">
+                      <ElectricityDonutChart data={scenario as any} />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+
+          <Card className="overflow-hidden border-0 bg-gradient-to-br from-blue-950/50 via-violet-950/50 to-blue-950/50 card-hover">
+            <CardContent className="py-8 sm:py-10">
+              <div className="text-center">
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold gradient-text mb-4">
+                  1% → 22%
+                </div>
+                <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto">
+                  Grid infrastructure's share of total electricity impact increases from 
+                  ~1% today to over 22% in the 1.5°C scenario as generation becomes cleaner.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </AnimatedSection>
+
+        {/* Section 2: Grid Status Quo */}
+        <AnimatedSection id="status-quo" className="mb-24 sm:mb-32">
+          <SectionHeader
+            step={2}
             title="Today's Grid Infrastructure"
             subtitle="Understanding the current environmental footprint of Germany's electricity transmission and distribution network"
-            accent="blue"
+            accent="amber"
           />
 
           <div className="grid lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
@@ -368,10 +491,10 @@ function App() {
           </div>
         </AnimatedSection>
 
-        {/* Section 2: Material Flows */}
+        {/* Section 3: Material Flows */}
         <AnimatedSection className="mb-24 sm:mb-32">
           <SectionHeader
-            step={2}
+            step={3}
             title="Material & Process Analysis"
             subtitle="Tracing the environmental impact from industrial processes through materials to grid components"
             accent="violet"
@@ -392,23 +515,12 @@ function App() {
             </CardContent>
           </Card>
 
-          <Card className="card-hover">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Detailed Material Contributions</CardTitle>
-              <CardDescription>
-                Which materials drive the impact of each grid component
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <MaterialContributionChart />
-            </CardContent>
-          </Card>
         </AnimatedSection>
 
-        {/* Section 3: Future Scenarios */}
+        {/* Section 4: Grid Expansion Scenarios */}
         <AnimatedSection className="mb-24 sm:mb-32">
           <SectionHeader
-            step={3}
+            step={4}
             title="Grid Expansion Scenarios"
             subtitle="Comparing climate pathways: how prospective LCA reveals emission reduction potential"
             accent="emerald"
@@ -472,13 +584,35 @@ function App() {
           </Card>
         </AnimatedSection>
 
-        {/* Section 4: Impact Categories */}
+        {/* Section 5: Future Contributions Explorer */}
         <AnimatedSection className="mb-24 sm:mb-32">
           <SectionHeader
-            step={4}
+            step={5}
+            title="Future Contributions Explorer"
+            subtitle="Compare BAU with climate scenarios across materials, components, processes, and time periods"
+            accent="cyan"
+          />
+
+          <Card className="card-hover">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Scenario Comparison by Category</CardTitle>
+              <CardDescription>
+                Toggle categories and scenarios to see how shares shift over time
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <MaterialContributionChart />
+            </CardContent>
+          </Card>
+        </AnimatedSection>
+
+        {/* Section 6: Impact Categories */}
+        <AnimatedSection className="mb-24 sm:mb-32">
+          <SectionHeader
+            step={6}
             title="Environmental Impact Categories"
             subtitle="Beyond climate change: comprehensive assessment across multiple impact dimensions"
-            accent="amber"
+            accent="lime"
           />
 
           <div className="grid md:grid-cols-3 gap-4 mb-6">
@@ -553,104 +687,13 @@ function App() {
           </Card>
         </AnimatedSection>
 
-        {/* Section 5: Electricity Mix */}
-        <AnimatedSection className="mb-24 sm:mb-32">
-          <SectionHeader
-            step={5}
-            title="Electricity Generation Evolution"
-            subtitle="How the generation mix transforms and what it means for grid infrastructure's relative impact"
-            accent="blue"
-          />
-
-          <div className="flex flex-col gap-3 sm:gap-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              {[
-                {
-                  ...electricityImpactData.statusQuo,
-                  scenario: "Status Quo",
-                  impactLabel: `${electricityImpactData.statusQuo.totalGCO2e} g CO₂/kWh`,
-                },
-                {
-                  ...electricityImpactData[selectedScenario],
-                  scenario:
-                    selectedScenario === "npi2045"
-                      ? "3°C Scenario"
-                      : selectedScenario === "pkBudg1000_2045"
-                        ? "2°C Scenario"
-                        : "1.5°C Scenario",
-                  impactLabel: `${electricityImpactData[selectedScenario].totalGCO2e} g CO₂/kWh`,
-                },
-              ].map((scenario, index) => (
-                <motion.div
-                  key={scenario.scenario}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.08 }}
-                >
-                  <Card className="card-hover">
-                    <CardHeader className="pb-1 px-4 pt-4 flex flex-wrap items-center gap-2">
-                      {scenario.scenario === "Status Quo" ? (
-                        <>
-                          <CardTitle className="text-xs sm:text-sm">
-                            Status Quo
-                          </CardTitle>
-                          <CardDescription className="text-[10px]">
-                            {scenario.year} • {scenario.impactLabel}
-                          </CardDescription>
-                        </>
-                      ) : (
-                        <>
-                          <Select
-                            value={selectedScenario}
-                            onValueChange={(v) => setSelectedScenario(v as typeof selectedScenario)}
-                          >
-                            <SelectTrigger className="w-48 bg-zinc-900 border-zinc-800 text-sm">
-                              <SelectValue placeholder="Select scenario" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="npi2045">3°C (2045)</SelectItem>
-                              <SelectItem value="pkBudg1000_2045">2°C (2045)</SelectItem>
-                              <SelectItem value="pkBudg650_2045">1.5°C (2045)</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <CardDescription className="text-[10px]">
-                            {scenario.year} • {scenario.impactLabel}
-                          </CardDescription>
-                        </>
-                      )}
-                    </CardHeader>
-                    <CardContent className="px-2 pb-4">
-                      <ElectricityDonutChart data={scenario as any} />
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          <Card className="overflow-hidden border-0 bg-gradient-to-br from-blue-950/50 via-violet-950/50 to-blue-950/50 card-hover">
-            <CardContent className="py-8 sm:py-10">
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold gradient-text mb-4">
-                  1% → 22%
-                </div>
-                <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto">
-                  Grid infrastructure's share of total electricity impact increases from 
-                  ~1% today to over 22% in the 1.5°C scenario as generation becomes cleaner.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </AnimatedSection>
-
-        {/* Section 6: Key Findings */}
+        {/* Section 7: Key Findings */}
         <AnimatedSection id="key-findings" className="mb-16 sm:mb-24">
           <SectionHeader
-            step={6}
+            step={7}
             title="Key Findings"
             subtitle="The essential insights from this prospective life cycle assessment study"
-            accent="violet"
+            accent="rose"
           />
 
           <div className="grid md:grid-cols-3 gap-4 sm:gap-6">

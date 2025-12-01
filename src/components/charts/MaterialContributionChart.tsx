@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "framer-motion";
-import { Bar, BarChart, CartesianGrid, Rectangle, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
-import { materialContributions } from "@/data";
+import { plotDatasets, scenarioOptions, type PlotDatasetKey, type ScenarioKey } from "@/data/plotData";
 import type { ChartConfig } from "@/components/ui/chart";
 import {
   ChartContainer,
@@ -11,147 +11,125 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-type MaterialKey =
-  | "Aluminum"
-  | "Iron & Steel"
-  | "Copper"
-  | "Plastics"
-  | "Concrete"
-  | "SF6"
-  | "Other";
-type ComponentKey = "overheadLines" | "cables" | "transformers" | "substations" | "switchgears";
-type FoldedRow = { component: string } & Record<MaterialKey, number>;
+const datasetOptions: { key: PlotDatasetKey; label: string }[] = [
+  { key: "materials", label: "Materials" },
+  { key: "components", label: "Components" },
+  { key: "processes", label: "Processes" },
+  { key: "expansion", label: "Time periods" },
+];
 
-const MATERIALS: readonly MaterialKey[] = [
-  "Aluminum",
-  "Iron & Steel",
-  "Copper",
-  "Plastics",
-  "Concrete",
-  "SF6",
-  "Other",
-] as const;
-const COMPONENTS: readonly ComponentKey[] = [
-  "overheadLines",
-  "cables",
-  "transformers",
-  "substations",
-  "switchgears",
-] as const;
-const SEGMENTS: readonly MaterialKey[] = MATERIALS;
-const PERCENT_THRESHOLD = 0.02; // <2% gets dropped (treated as 0) to avoid edge rounding on slivers
-
-const chartConfig = {
-  Aluminum: { label: "Aluminum", color: "#38bdf8" },
-  "Iron & Steel": { label: "Iron & Steel", color: "#64748b" },
-  Copper: { label: "Copper", color: "#f97316" },
-  Plastics: { label: "Plastics", color: "#a855f7" },
-  Concrete: { label: "Concrete", color: "#cbd5e1" },
-  SF6: { label: "SF6", color: "#facc15" },
-  Other: { label: "Other", color: "#94a3b8" },
+const chartBaseConfig = {
+  BAU: { label: "Business as Usual", color: "#94a3b8" }, // neutral zinc tone to match UI
+  scenario: { label: "Scenario", color: "#38bdf8" },
 } satisfies ChartConfig;
-
-function buildComponentRows(): FoldedRow[] {
-  return COMPONENTS.map((component) => {
-    const row: FoldedRow = {
-      component:
-        component === "overheadLines"
-          ? "Overhead Lines"
-          : component.charAt(0).toUpperCase() + component.slice(1),
-      Aluminum: 0,
-      "Iron & Steel": 0,
-      Copper: 0,
-      Plastics: 0,
-      Concrete: 0,
-      SF6: 0,
-      Other: 0,
-    };
-
-    for (const mat of MATERIALS) {
-      const source = materialContributions.find((m) => m.name === mat);
-      if (!source) continue;
-      row[mat] = (source as unknown as Record<string, number>)[component] ?? 0;
-    }
-    return row;
-  });
-}
-
-function foldSmallSegments(row: FoldedRow): FoldedRow {
-  const totalsum = SEGMENTS.reduce((sum, key) => sum + (row[key] ?? 0), 0);
-  if (totalsum <= 0) return { ...row };
-
-  const next: FoldedRow = { ...row };
-  for (const key of SEGMENTS) {
-    const val = row[key] ?? 0;
-    if (totalsum !== 0 && val / totalsum < PERCENT_THRESHOLD) {
-      next[key] = 0;
-    }
-  }
-  return next;
-}
-
-function roundedStackShape(key: MaterialKey, payload: FoldedRow) {
-  // Find last non-zero key in this row
-  let lastKey: MaterialKey | undefined;
-  for (let i = SEGMENTS.length - 1; i >= 0; i--) {
-    const k = SEGMENTS[i];
-    if ((payload[k] ?? 0) > 1e-6) {
-      lastKey = k;
-      break;
-    }
-  }
-
-  const radius: [number, number, number, number] = [0, 0, 0, 0];
-  // Only round the top of the stack; bottoms stay square for grounded look.
-  if (key === lastKey) {
-    radius[0] = 6; // top-left
-    radius[1] = 6; // top-right
-  }
-  return radius;
-}
 
 export function MaterialContributionChart() {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const [ready, setReady] = useState(false);
+  const [datasetKey, setDatasetKey] = useState<PlotDatasetKey>("materials");
+  const [scenario, setScenario] = useState<ScenarioKey>("scen15");
 
   useEffect(() => {
     if (isInView && !ready) setReady(true);
   }, [isInView, ready]);
 
-  const componentRows = buildComponentRows();
-  const folded = componentRows.map(foldSmallSegments);
+  const chartConfig = useMemo<ChartConfig>(() => {
+    const selected = scenarioOptions.find((s) => s.key === scenario)?.label ?? "Scenario";
+    return {
+      ...chartBaseConfig,
+      scenario: { label: selected, color: chartBaseConfig.scenario.color },
+    };
+  }, [scenario]);
 
-  const data = ready
-    ? folded
-    : folded.map((d) =>
-        SEGMENTS.reduce(
-          (acc, key) => ({ ...acc, [key]: 0 }),
-          { ...d }
-        )
-      );
+  const { chartData, maxValue } = useMemo(() => {
+    const rows = plotDatasets[datasetKey];
+    const entries = rows.map((row) => ({
+      category: row.label,
+      BAU: ready ? row.BAU : 0,
+      scenario: ready ? row[scenario] : 0,
+    }));
+
+    const maxVal = Math.max(...rows.flatMap((r) => [r.BAU, r[scenario]]), 0);
+
+    if (datasetKey === "expansion") {
+      // Preserve chronological order for time-period view
+      return { chartData: entries, maxValue: maxVal };
+    }
+
+    // Sort descending by BAU, but keep any "Other" category anchored to the right
+    const sorted = entries.sort((a, b) => {
+      const isOtherA = /other/i.test(a.category);
+      const isOtherB = /other/i.test(b.category);
+      if (isOtherA && !isOtherB) return 1;
+      if (!isOtherA && isOtherB) return -1;
+      return b.BAU - a.BAU;
+    });
+    return { chartData: sorted, maxValue: maxVal };
+  }, [datasetKey, scenario, ready]);
+
+  const yMax = useMemo(() => {
+    // Use raw maxValue (not animated zeros) for stable baseline during fade-in
+    const max = Math.max(maxValue, 1);
+    // Add 5% headroom but cap at 120 to avoid runaway
+    return Math.min(Math.ceil(max * 1.05), 120);
+  }, [maxValue]);
 
   return (
-    <div ref={ref} className="w-full">
+    <div ref={ref} className="w-full space-y-3">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex gap-2 flex-wrap">
+          {datasetOptions.map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              onClick={() => setDatasetKey(option.key)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+                datasetKey === option.key
+                  ? "bg-zinc-800 border-zinc-700 text-white"
+                  : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white"
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <Select value={scenario} onValueChange={(v) => setScenario(v as ScenarioKey)}>
+          <SelectTrigger className="w-48 bg-zinc-900 border-zinc-800 text-sm">
+            <SelectValue placeholder="Select scenario" />
+          </SelectTrigger>
+          <SelectContent>
+            {scenarioOptions.map((opt) => (
+              <SelectItem key={opt.key} value={opt.key}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <ChartContainer
         config={chartConfig}
-        className="h-[420px] sm:h-[500px] md:h-[560px] w-full"
+        className="h-[420px] sm:h-[460px] md:h-[520px] w-full"
       >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={data}
-            margin={{ top: 16, right: 22, left: 16, bottom: 80 }}
-            barGap={18}
-            barCategoryGap="45%"
-            barSize={110}
+            data={chartData}
+            margin={{ top: 12, right: 22, left: 12, bottom: 64 }}
+            barGap={14}
+            barCategoryGap={28}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
             <XAxis
-              dataKey="component"
+              dataKey="category"
               tickLine={false}
               axisLine={false}
               tickMargin={10}
+              interval={0}
+              height={60}
               tick={{ fontSize: 11, fill: "#e5e7eb" }}
             />
             <YAxis
@@ -159,7 +137,8 @@ export function MaterialContributionChart() {
               axisLine={false}
               tickMargin={6}
               tick={{ fontSize: 11, fill: "#9ca3af" }}
-              domain={[0, "auto"]}
+              domain={[0, yMax]}
+              tickFormatter={(v) => `${v}%`}
             />
             <ChartTooltip
               content={
@@ -170,7 +149,7 @@ export function MaterialContributionChart() {
                         {chartConfig[name as keyof typeof chartConfig]?.label || name}
                       </span>
                       <span className="font-mono font-medium text-gray-100 text-xs">
-                        {typeof value === "number" ? value.toFixed(2) : value} Mt CO₂-eq
+                        {typeof value === "number" ? value.toFixed(1) : value}%
                       </span>
                     </div>
                   )}
@@ -181,22 +160,28 @@ export function MaterialContributionChart() {
               verticalAlign="top"
               content={<ChartLegendContent className="text-[11px]" />}
             />
-            {SEGMENTS.map((key, idx) => (
-              <Bar
-                key={key}
-                dataKey={key}
-                stackId="impact"
-                fill={`var(--color-${key})`}
-                isAnimationActive={true}
-                animationDuration={900}
-                animationBegin={idx * 120}
-                shape={(props: any) => {
-                  const payload = (props as { payload: FoldedRow }).payload;
-                  const radius = roundedStackShape(key, payload);
-                  return <Rectangle {...(props as object)} radius={radius} />;
-                }}
-              />
-            ))}
+
+            <Bar
+              dataKey="BAU"
+              name="BAU"
+              fill="var(--color-BAU)"
+              radius={[6, 6, 0, 0]}
+              isAnimationActive={true}
+              animationDuration={900}
+              animationEasing="ease-out"
+              style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
+            />
+            <Bar
+              dataKey="scenario"
+              name="Scenario"
+              fill="var(--color-scenario)"
+              radius={[6, 6, 0, 0]}
+              isAnimationActive={true}
+              animationDuration={900}
+              animationBegin={120}
+              animationEasing="ease-out"
+              style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
+            />
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>
