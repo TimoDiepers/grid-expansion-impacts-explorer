@@ -111,11 +111,7 @@ function roundedStackShape(key: MaterialKey, payload: FoldedRow) {
   }
 
   const radius: [number, number, number, number] = [0, 0, 0, 0];
-  // For vertical stacks: first key sits at the bottom, last key at the top.
-  if (key === firstKey) {
-    radius[2] = 6; // bottom-right
-    radius[3] = 6; // bottom-left
-  }
+  // Only round the top of the stack; bottoms stay square for grounded look.
   if (key === lastKey) {
     radius[0] = 6; // top-left
     radius[1] = 6; // top-right

@@ -52,18 +52,18 @@ export function ImpactCategoryComparisonChart() {
   return (
     <div ref={ref} className="w-full">
       <div className="w-full overflow-x-auto -mx-2 px-2">
-        <ChartContainer config={chartConfig} className="h-[320px] sm:h-[400px] md:h-[500px] min-w-[350px] w-full">
+        <ChartContainer config={chartConfig} className="h-[420px] sm:h-[500px] md:h-[600px] min-w-[350px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
               layout="vertical"
-              barGap={8}
+              barGap={2}
               margin={{ top: 10, right: 20, left: 10, bottom: 10 }}
             >
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#374151" />
               <XAxis
                 type="number"
-                domain={[-35, 25]}
+                domain={[-30, 20]}
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={(value) => `${value > 0 ? "+" : ""}${value}%`}
