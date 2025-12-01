@@ -98,7 +98,7 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="base"
                 fill="var(--color-base)"
-                fillOpacity={0.4}
+                fillOpacity={0.9}
                 stroke="var(--color-base)"
                 strokeWidth={2}
                 radius={[0, 8, 8, 0]}
@@ -109,7 +109,7 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="pkBudg1000"
                 fill="var(--color-pkBudg1000)"
-                fillOpacity={0.4}
+                fillOpacity={0.9}
                 stroke="var(--color-pkBudg1000)"
                 strokeWidth={2}
                 radius={[0, 8, 8, 0]}
@@ -120,7 +120,7 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="pkBudg650"
                 fill="var(--color-pkBudg650)"
-                fillOpacity={0.4}
+                fillOpacity={0.9}
                 stroke="var(--color-pkBudg650)"
                 strokeWidth={2}
                 radius={[0, 8, 8, 0]}

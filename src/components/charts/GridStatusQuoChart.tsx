@@ -111,7 +111,7 @@ export function GridStatusQuoChart() {
                 <Cell 
                   key={`cell-${index}`} 
                   fill={COLORS[entry.name] || "#8884d8"} 
-                  fillOpacity={0.4}
+                  fillOpacity={0.9}
                   stroke={COLORS[entry.name] || "#8884d8"}
                   strokeWidth={2}
                 />

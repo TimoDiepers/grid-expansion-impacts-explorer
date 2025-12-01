@@ -185,7 +185,7 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
                       <RoundedCell
                         key={`cell-${index}`}
                         fill={entry.name === "Grid infrastructure" ? "url(#gridGrad)" : entry.fill}
-                        fillOpacity={0.4}
+                        fillOpacity={0.9}
                         opacity={1}
                         stroke={entry.name === "Grid infrastructure" ? "url(#gridGrad)" : entry.fill}
                         strokeWidth={2}
