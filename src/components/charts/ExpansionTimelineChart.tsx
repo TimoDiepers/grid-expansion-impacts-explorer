@@ -4,6 +4,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useInView } from "framer-motion";
@@ -46,18 +48,6 @@ export function ExpansionTimelineChart() {
 
   return (
     <div ref={ref} className="w-full">
-      {/* Custom legend at top to prevent overflow */}
-      <div className="flex flex-wrap justify-center gap-x-2 sm:gap-x-3 gap-y-1 text-[9px] sm:text-xs mb-2 sm:mb-3 px-2">
-        {Object.entries(chartConfig).map(([key, config]) => (
-          <div key={key} className="flex items-center gap-1 sm:gap-1.5">
-            <div
-              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm flex-shrink-0 ${key === 'static' ? 'border border-dashed border-gray-500' : ''}`}
-              style={{ backgroundColor: key === 'static' ? 'transparent' : config.color }}
-            />
-            <span className="text-gray-400">{config.label}</span>
-          </div>
-        ))}
-      </div>
       <ChartContainer config={chartConfig} className="h-44 sm:h-56 md:h-72 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -141,6 +131,10 @@ export function ExpansionTimelineChart() {
               isAnimationActive={true}
               animationDuration={1500}
               animationBegin={600}
+            />
+            <ChartLegend
+              verticalAlign="top"
+              content={<ChartLegendContent className="text-[11px]" />}
             />
           </LineChart>
         </ResponsiveContainer>

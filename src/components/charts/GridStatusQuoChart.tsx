@@ -4,6 +4,8 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useInView } from "framer-motion";
@@ -64,7 +66,8 @@ export function GridStatusQuoChart() {
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 5, right: 15, left: 5, bottom: 5 }}
+            barSize={20}
+            margin={{ top: 10, right: 16, left: 70, bottom: 10 }}
           >
             <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#374151" />
             <XAxis
@@ -72,16 +75,16 @@ export function GridStatusQuoChart() {
               tickLine={false}
               axisLine={false}
               tickFormatter={(value) => `${value}`}
-              tick={{ fontSize: 10, fill: "#9ca3af" }}
-              domain={[0, 'auto']}
+              tick={{ fontSize: 11, fill: "#9ca3af" }}
+              domain={[0, "auto"]}
             />
             <YAxis
               type="category"
               dataKey="name"
               tickLine={false}
               axisLine={false}
-              width={70}
-              tick={{ fontSize: 9, fill: "#9ca3af" }}
+              width={90}
+              tick={{ fontSize: 11, fill: "#e5e7eb" }}
             />
             <ChartTooltip
               cursor={{ fill: "rgba(255, 255, 255, 0.05)" }}
@@ -109,6 +112,10 @@ export function GridStatusQuoChart() {
                 <Cell key={`cell-${index}`} fill={COLORS[entry.name] || "#8884d8"} />
               ))}
             </Bar>
+            <ChartLegend
+              verticalAlign="top"
+              content={<ChartLegendContent className="text-[11px]" />}
+            />
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>

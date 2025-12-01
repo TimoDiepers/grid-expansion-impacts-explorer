@@ -1,104 +1,183 @@
-import { Bar, BarChart, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { useEffect, useRef, useState } from "react";
+import { useInView } from "framer-motion";
+import { Bar, BarChart, CartesianGrid, Rectangle, ResponsiveContainer, XAxis, YAxis } from "recharts";
+
 import { materialContributions } from "@/data";
+import type { ChartConfig } from "@/components/ui/chart";
 import {
   ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-  type ChartConfig,
 } from "@/components/ui/chart";
-import { useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+
+type MaterialKey =
+  | "Aluminum"
+  | "Iron & Steel"
+  | "Copper"
+  | "Plastics"
+  | "Concrete"
+  | "SF6"
+  | "Other";
+type ComponentKey = "overheadLines" | "cables" | "transformers" | "substations" | "switchgears";
+type FoldedRow = { component: string } & Record<MaterialKey, number>;
+
+const MATERIALS: readonly MaterialKey[] = [
+  "Aluminum",
+  "Iron & Steel",
+  "Copper",
+  "Plastics",
+  "Concrete",
+  "SF6",
+  "Other",
+] as const;
+const COMPONENTS: readonly ComponentKey[] = [
+  "overheadLines",
+  "cables",
+  "transformers",
+  "substations",
+  "switchgears",
+] as const;
+const SEGMENTS: readonly MaterialKey[] = MATERIALS;
+const PERCENT_THRESHOLD = 0.02; // <2% gets dropped (treated as 0) to avoid edge rounding on slivers
 
 const chartConfig = {
-  overheadLines: {
-    label: "Overhead Lines",
-    color: "#2563eb",
-  },
-  cables: {
-    label: "Cables",
-    color: "#f97316",
-  },
-  transformers: {
-    label: "Transformers",
-    color: "#22c55e",
-  },
-  substations: {
-    label: "Substations",
-    color: "#ef4444",
-  },
-  switchgears: {
-    label: "Switchgears",
-    color: "#a855f7",
-  },
+  Aluminum: { label: "Aluminum", color: "#38bdf8" },
+  "Iron & Steel": { label: "Iron & Steel", color: "#64748b" },
+  Copper: { label: "Copper", color: "#f97316" },
+  Plastics: { label: "Plastics", color: "#a855f7" },
+  Concrete: { label: "Concrete", color: "#cbd5e1" },
+  SF6: { label: "SF6", color: "#facc15" },
+  Other: { label: "Other", color: "#94a3b8" },
 } satisfies ChartConfig;
 
+function buildComponentRows(): FoldedRow[] {
+  return COMPONENTS.map((component) => {
+    const row: FoldedRow = {
+      component:
+        component === "overheadLines"
+          ? "Overhead Lines"
+          : component.charAt(0).toUpperCase() + component.slice(1),
+      Aluminum: 0,
+      "Iron & Steel": 0,
+      Copper: 0,
+      Plastics: 0,
+      Concrete: 0,
+      SF6: 0,
+      Other: 0,
+    };
+
+    for (const mat of MATERIALS) {
+      const source = materialContributions.find((m) => m.name === mat);
+      if (!source) continue;
+      row[mat] = (source as unknown as Record<string, number>)[component] ?? 0;
+    }
+    return row;
+  });
+}
+
+function foldSmallSegments(row: FoldedRow): FoldedRow {
+  const totalsum = SEGMENTS.reduce((sum, key) => sum + (row[key] ?? 0), 0);
+  if (totalsum <= 0) return { ...row };
+
+  const next: FoldedRow = { ...row };
+  for (const key of SEGMENTS) {
+    const val = row[key] ?? 0;
+    if (totalsum !== 0 && val / totalsum < PERCENT_THRESHOLD) {
+      next[key] = 0;
+    }
+  }
+  return next;
+}
+
+function roundedStackShape(key: MaterialKey, payload: FoldedRow) {
+  // Find first and last non-zero keys in this row
+  let firstKey: MaterialKey | undefined;
+  for (const k of SEGMENTS) {
+    if ((payload[k] ?? 0) > 1e-6) {
+      firstKey = k;
+      break;
+    }
+  }
+
+  let lastKey: MaterialKey | undefined;
+  for (let i = SEGMENTS.length - 1; i >= 0; i--) {
+    const k = SEGMENTS[i];
+    if ((payload[k] ?? 0) > 1e-6) {
+      lastKey = k;
+      break;
+    }
+  }
+
+  const radius: [number, number, number, number] = [0, 0, 0, 0];
+  // For vertical stacks: first key sits at the bottom, last key at the top.
+  if (key === firstKey) {
+    radius[2] = 6; // bottom-right
+    radius[3] = 6; // bottom-left
+  }
+  if (key === lastKey) {
+    radius[0] = 6; // top-left
+    radius[1] = 6; // top-right
+  }
+  return radius;
+}
+
 export function MaterialContributionChart() {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [hasAnimated, setHasAnimated] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (isInView && !hasAnimated) {
-      setHasAnimated(true);
-    }
-  }, [isInView, hasAnimated]);
+    if (isInView && !ready) setReady(true);
+  }, [isInView, ready]);
 
-  // Use zeroed data until in view
-  const chartData = hasAnimated 
-    ? materialContributions 
-    : materialContributions.map(d => ({ 
-        ...d, 
-        overheadLines: 0, 
-        cables: 0, 
-        transformers: 0, 
-        substations: 0, 
-        switchgears: 0 
-      }));
+  const componentRows = buildComponentRows();
+  const folded = componentRows.map(foldSmallSegments);
+
+  const data = ready
+    ? folded
+    : folded.map((d) =>
+        SEGMENTS.reduce(
+          (acc, key) => ({ ...acc, [key]: 0 }),
+          { ...d }
+        )
+      );
 
   return (
     <div ref={ref} className="w-full">
-      {/* Custom legend at top */}
-      <div className="flex flex-wrap justify-center gap-x-2 sm:gap-x-3 gap-y-1 text-[9px] sm:text-xs mb-2 sm:mb-3 px-2">
-        {Object.entries(chartConfig).map(([key, config]) => (
-          <div key={key} className="flex items-center gap-1 sm:gap-1.5">
-            <div
-              className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-sm flex-shrink-0"
-              style={{ backgroundColor: config.color }}
-            />
-            <span className="text-gray-400">{config.label}</span>
-          </div>
-        ))}
-      </div>
-      <ChartContainer config={chartConfig} className="h-48 sm:h-64 md:h-80 w-full">
+      <ChartContainer
+        config={chartConfig}
+        className="h-[420px] sm:h-[500px] md:h-[560px] w-full"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={chartData}
-            margin={{ top: 5, right: 5, left: 0, bottom: 35 }}
+            data={data}
+            margin={{ top: 16, right: 22, left: 16, bottom: 80 }}
+            barGap={18}
+            barCategoryGap="45%"
+            barSize={110}
           >
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
             <XAxis
-              dataKey="name"
+              dataKey="component"
               tickLine={false}
               axisLine={false}
-              angle={-45}
-              textAnchor="end"
-              height={35}
-              tickMargin={5}
-              tick={{ fontSize: 8, fill: "#9ca3af" }}
+              tickMargin={10}
+              tick={{ fontSize: 11, fill: "#e5e7eb" }}
             />
-            <YAxis 
-              tickLine={false} 
-              axisLine={false} 
-              tickMargin={2}
-              tick={{ fontSize: 9, fill: "#9ca3af" }}
-              width={25}
-              domain={[0, 'auto']}
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={6}
+              tick={{ fontSize: 11, fill: "#9ca3af" }}
+              domain={[0, "auto"]}
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
                   formatter={(value, name) => (
-                    <div className="flex items-center justify-between gap-2 sm:gap-4">
+                    <div className="flex items-center justify-between gap-3">
                       <span className="text-gray-400 text-xs">
                         {chartConfig[name as keyof typeof chartConfig]?.label || name}
                       </span>
@@ -110,51 +189,26 @@ export function MaterialContributionChart() {
                 />
               }
             />
-            <Bar
-              dataKey="overheadLines"
-              stackId="a"
-              fill="var(--color-overheadLines)"
-              radius={0}
-              isAnimationActive={true}
-              animationDuration={1200}
-              animationBegin={0}
+            <ChartLegend
+              verticalAlign="top"
+              content={<ChartLegendContent className="text-[11px]" />}
             />
-            <Bar
-              dataKey="cables"
-              stackId="a"
-              fill="var(--color-cables)"
-              radius={0}
-              isAnimationActive={true}
-              animationDuration={1200}
-              animationBegin={100}
-            />
-            <Bar
-              dataKey="transformers"
-              stackId="a"
-              fill="var(--color-transformers)"
-              radius={0}
-              isAnimationActive={true}
-              animationDuration={1200}
-              animationBegin={200}
-            />
-            <Bar
-              dataKey="substations"
-              stackId="a"
-              fill="var(--color-substations)"
-              radius={0}
-              isAnimationActive={true}
-              animationDuration={1200}
-              animationBegin={300}
-            />
-            <Bar
-              dataKey="switchgears"
-              stackId="a"
-              fill="var(--color-switchgears)"
-              radius={[8, 8, 0, 0]}
-              isAnimationActive={true}
-              animationDuration={1200}
-              animationBegin={400}
-            />
+            {SEGMENTS.map((key, idx) => (
+              <Bar
+                key={key}
+                dataKey={key}
+                stackId="impact"
+                fill={`var(--color-${key})`}
+                isAnimationActive={true}
+                animationDuration={900}
+                animationBegin={idx * 120}
+                shape={(props: any) => {
+                  const payload = (props as { payload: FoldedRow }).payload;
+                  const radius = roundedStackShape(key, payload);
+                  return <Rectangle {...(props as object)} radius={radius} />;
+                }}
+              />
+            ))}
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,13 @@ import {
   Leaf,
   Cable,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Animated Section component for scroll-triggered animations
 function AnimatedSection({ 
@@ -150,6 +157,7 @@ function App() {
   // Calculate key metrics
   const totalGridImpact = gridStatusQuoComponents.reduce((sum, c) => sum + c.value, 0);
   const heroRef = useRef(null);
+  const [selectedScenario, setSelectedScenario] = useState<"npi2045" | "pkBudg1000_2045" | "pkBudg650_2045">("pkBudg650_2045");
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -554,33 +562,71 @@ function App() {
             accent="blue"
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
-            {[
-              { data: electricityImpactData.statusQuo, label: "Status Quo", year: "2023", impact: "373 g" },
-              { data: electricityImpactData.npi2045, label: "3°C Scenario", year: "2045", impact: "71 g" },
-              { data: electricityImpactData.pkBudg1000_2045, label: "2°C Scenario", year: "2045", impact: "30 g" },
-              { data: electricityImpactData.pkBudg650_2045, label: "1.5°C Scenario", year: "2045", impact: "17 g" },
-            ].map((scenario, index) => (
-              <motion.div
-                key={scenario.label}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="card-hover">
-                  <CardHeader className="pb-1 px-4 pt-4">
-                    <CardTitle className="text-xs sm:text-sm">{scenario.label}</CardTitle>
-                    <CardDescription className="text-[10px]">
-                      {scenario.year} • {scenario.impact} CO₂/kWh
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="px-2 pb-4">
-                    <ElectricityDonutChart data={scenario.data} />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+          <div className="flex flex-col gap-3 sm:gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              {[
+                {
+                  ...electricityImpactData.statusQuo,
+                  scenario: "Status Quo",
+                  impactLabel: `${electricityImpactData.statusQuo.totalGCO2e} g CO₂/kWh`,
+                },
+                {
+                  ...electricityImpactData[selectedScenario],
+                  scenario:
+                    selectedScenario === "npi2045"
+                      ? "3°C Scenario"
+                      : selectedScenario === "pkBudg1000_2045"
+                        ? "2°C Scenario"
+                        : "1.5°C Scenario",
+                  impactLabel: `${electricityImpactData[selectedScenario].totalGCO2e} g CO₂/kWh`,
+                },
+              ].map((scenario, index) => (
+                <motion.div
+                  key={scenario.scenario}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.08 }}
+                >
+                  <Card className="card-hover">
+                    <CardHeader className="pb-1 px-4 pt-4 flex flex-wrap items-center gap-2">
+                      {scenario.scenario === "Status Quo" ? (
+                        <>
+                          <CardTitle className="text-xs sm:text-sm">
+                            Status Quo
+                          </CardTitle>
+                          <CardDescription className="text-[10px]">
+                            {scenario.year} • {scenario.impactLabel}
+                          </CardDescription>
+                        </>
+                      ) : (
+                        <>
+                          <Select
+                            value={selectedScenario}
+                            onValueChange={(v) => setSelectedScenario(v as typeof selectedScenario)}
+                          >
+                            <SelectTrigger className="w-48 bg-zinc-900 border-zinc-800 text-sm">
+                              <SelectValue placeholder="Select scenario" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="npi2045">3°C (2045)</SelectItem>
+                              <SelectItem value="pkBudg1000_2045">2°C (2045)</SelectItem>
+                              <SelectItem value="pkBudg650_2045">1.5°C (2045)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <CardDescription className="text-[10px]">
+                            {scenario.year} • {scenario.impactLabel}
+                          </CardDescription>
+                        </>
+                      )}
+                    </CardHeader>
+                    <CardContent className="px-2 pb-4">
+                      <ElectricityDonutChart data={scenario as any} />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </div>
 
           <Card className="overflow-hidden border-0 bg-gradient-to-br from-blue-950/50 via-violet-950/50 to-blue-950/50 card-hover">

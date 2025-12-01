@@ -1,5 +1,11 @@
-import { Sankey, Tooltip, Layer, Rectangle } from "recharts";
+import { Layer, Rectangle, ResponsiveContainer, Sankey } from "recharts";
 import { sankeyData } from "@/data";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 
 // Node colors - organized by category
 const NODE_COLORS: Record<string, string> = {
@@ -65,6 +71,13 @@ function buildSankeyData() {
 }
 
 const { nodes, links } = buildSankeyData();
+
+const chartConfig = {
+  flow: {
+    label: "Flow value",
+    color: "#22d3ee",
+  },
+} satisfies ChartConfig;
 
 // Custom node component for the Sankey diagram
 interface SankeyNodeProps {
@@ -151,16 +164,11 @@ function SankeyLink({
   if (!payload) return null;
   
   const sourceNode = nodes[payload.source];
-  const gradientId = `gradient-${payload.source}-${payload.target}`;
+  const targetNode = nodes[payload.target];
+  const gradientId = `link-gradient-${payload.source}-${payload.target}`;
 
   return (
     <Layer>
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor={sourceNode?.fill || "#9ca3af"} stopOpacity={0.5} />
-          <stop offset="100%" stopColor={sourceNode?.fill || "#9ca3af"} stopOpacity={0.2} />
-        </linearGradient>
-      </defs>
       <path
         d={`
           M${sourceX},${sourceY}
@@ -170,6 +178,7 @@ function SankeyLink({
           Z
         `}
         fill={`url(#${gradientId})`}
+        stroke="none"
         strokeWidth={0}
         className="hover:opacity-80 transition-opacity cursor-pointer"
       />
@@ -187,7 +196,7 @@ interface TooltipPayloadItem {
   };
 }
 
-function CustomTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) {
+function SankeyTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) {
   if (!active || !payload || payload.length === 0) return null;
   
   const data = payload[0]?.payload;
@@ -195,27 +204,68 @@ function CustomTooltip({ active, payload }: { active?: boolean; payload?: Toolti
 
   if (data.sourceName && data.targetName) {
     return (
-      <div className="bg-gray-800 p-2 sm:p-3 rounded-lg shadow-lg border border-gray-700">
-        <p className="font-medium text-gray-100 text-xs sm:text-sm">
-          {data.sourceName} → {data.targetName}
-        </p>
-        <p className="text-xs text-gray-400 mt-1">
-          {data.value?.toFixed(2)} Mt CO₂-eq
-        </p>
-      </div>
+      <ChartTooltipContent
+        active={active}
+        payload={payload as any}
+        hideIndicator
+        hideLabel
+        formatter={() => (
+          <div className="flex flex-col gap-1">
+            <span className="text-gray-100 text-xs sm:text-sm font-semibold">
+              {data.sourceName} → {data.targetName}
+            </span>
+            <span className="text-gray-300 text-[11px] sm:text-xs">
+              {data.value?.toFixed(2)} Mt CO₂-eq
+            </span>
+          </div>
+        )}
+      />
     );
   }
 
   return (
-    <div className="bg-gray-800 p-2 sm:p-3 rounded-lg shadow-lg border border-gray-700">
-      <p className="font-medium text-gray-100 text-xs sm:text-sm">{data.name}</p>
-    </div>
+    <ChartTooltipContent
+      active={active}
+      payload={payload as any}
+      hideIndicator
+      hideLabel
+      formatter={() => (
+        <div className="text-gray-100 text-xs sm:text-sm font-semibold">
+          {data.name}
+        </div>
+      )}
+    />
   );
 }
 
 export function SankeyVisualization() {
   return (
     <div className="w-full">
+      {/* Hidden SVG definitions so gradients are available to Recharts paths */}
+      <svg className="absolute h-0 w-0">
+        <defs>
+          {links.map((link) => {
+            const sourceColor = nodes[link.source]?.fill || "#9ca3af";
+            const targetColor = nodes[link.target]?.fill || "#9ca3af";
+            const gradientId = `link-gradient-${link.source}-${link.target}`;
+
+            return (
+              <linearGradient
+                key={gradientId}
+                id={gradientId}
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="0%"
+              >
+                <stop offset="0%" stopColor={sourceColor} stopOpacity={0.85} />
+                <stop offset="100%" stopColor={targetColor} stopOpacity={0.85} />
+              </linearGradient>
+            );
+          })}
+        </defs>
+      </svg>
+
       <div className="mb-3 sm:mb-4">
         <p className="text-xs sm:text-sm text-gray-400">
           Total climate impact: <strong className="text-gray-100">64.76 Mt CO₂-eq</strong>
@@ -225,22 +275,25 @@ export function SankeyVisualization() {
         </p>
       </div>
       
-      {/* Responsive Sankey container */}
+      {/* Responsive Sankey container styled like shadcn charts */}
       <div className="w-full overflow-x-auto -mx-2 px-2">
-        <div className="min-w-[500px] sm:min-w-[600px]">
-          <Sankey
-            width={700}
-            height={400}
-            data={{ nodes, links }}
-            node={<SankeyNode />}
-            link={<SankeyLink />}
-            nodePadding={20}
-            nodeWidth={10}
-            margin={{ top: 15, right: 120, bottom: 15, left: 120 }}
-          >
-            <Tooltip content={<CustomTooltip />} />
-          </Sankey>
-        </div>
+        <ChartContainer
+          config={chartConfig}
+          className="min-w-[720px] w-full h-[420px] sm:h-[480px] bg-zinc-900/40 border border-zinc-800 rounded-xl p-3 sm:p-4"
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <Sankey
+              data={{ nodes, links }}
+              node={<SankeyNode />}
+              link={<SankeyLink />}
+              nodePadding={20}
+              nodeWidth={12}
+              margin={{ top: 15, right: 120, bottom: 15, left: 120 }}
+            >
+              <ChartTooltip content={<SankeyTooltip />} />
+            </Sankey>
+          </ResponsiveContainer>
+        </ChartContainer>
       </div>
 
       {/* Legend */}
