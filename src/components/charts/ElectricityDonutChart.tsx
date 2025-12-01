@@ -38,6 +38,20 @@ const COLORS: Record<string, string> = {
   "Grid infrastructure": "#1e40af",
 };
 
+// Mapping from energy source names to gradient IDs
+const GRADIENT_IDS: Record<string, string> = {
+  Coal: "url(#gradCoal)",
+  Gas: "url(#gradGas)",
+  Wind: "url(#gradWind)",
+  Solar: "url(#gradSolar)",
+  Biomass: "url(#gradBiomass)",
+  Nuclear: "url(#gradNuclear)",
+  Hydro: "url(#gradHydro)",
+  Hydrogen: "url(#gradHydrogen)",
+  Other: "url(#gradOther)",
+  "Grid infrastructure": "url(#gridGrad)",
+};
+
 const GRID_GRADIENT_START = "#645de8ff";
 const GRID_GRADIENT_END = "#a855f7";
 
@@ -133,10 +147,48 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
       >
         <PieChart margin={{ top: -200, right: 0, bottom: 0, left: 0 }} className="-translate-y-22">
             <defs>
-              <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="20%">
-                <stop offset="0%" stopColor={GRID_GRADIENT_START} stopOpacity={1} />
+              {/* Grid infrastructure gradient */}
+              <radialGradient id="gridGrad" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor={GRID_GRADIENT_START} stopOpacity={0.3} />
                 <stop offset="100%" stopColor={GRID_GRADIENT_END} stopOpacity={1} />
-              </linearGradient>
+              </radialGradient>
+              {/* Radial gradients for each energy source: fades at inner radius, solid at outer radius */}
+              <radialGradient id="gradCoal" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#52525b" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#52525b" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradGas" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#f97316" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#f97316" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradWind" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#3b82f6" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradSolar" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#eab308" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#eab308" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradBiomass" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#22c55e" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#22c55e" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradNuclear" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#fbbf24" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#fbbf24" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradHydro" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#06b6d4" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradHydrogen" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#ed7577" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#ed7577" stopOpacity={1} />
+              </radialGradient>
+              <radialGradient id="gradOther" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                <stop offset="0%" stopColor="#9ca3af" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#9ca3af" stopOpacity={1} />
+              </radialGradient>
             </defs>
 
             <ChartTooltip
@@ -184,7 +236,7 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
                     return (
                       <RoundedCell
                         key={`cell-${index}`}
-                        fill={entry.name === "Grid infrastructure" ? "url(#gridGrad)" : entry.fill}
+                        fill={GRADIENT_IDS[entry.name] || entry.fill}
                         fillOpacity={1}
                         opacity={1}
                         stroke="transparent"

@@ -60,31 +60,31 @@ export function ImpactCategoryComparisonChart() {
               barGap={2}
             >
               <defs>
-                {/* Gradient for negative values (left direction): solid at right, fades left */}
+                {/* Gradient for negative values (left direction): solid at left (end), fades right (start/center) */}
                 <linearGradient id="gradientBaseNeg" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#6b7280" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#6b7280" stopOpacity={1} />
-                </linearGradient>
-                <linearGradient id="gradientPkBudg1000Neg" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={1} />
-                </linearGradient>
-                <linearGradient id="gradientPkBudg650Neg" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={1} />
-                </linearGradient>
-                {/* Gradient for positive values (right direction): solid at left, fades right */}
-                <linearGradient id="gradientBasePos" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#6b7280" stopOpacity={1} />
                   <stop offset="100%" stopColor="#6b7280" stopOpacity={0.3} />
                 </linearGradient>
-                <linearGradient id="gradientPkBudg1000Pos" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id="gradientPkBudg1000Neg" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
                   <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.3} />
                 </linearGradient>
-                <linearGradient id="gradientPkBudg650Pos" x1="0%" y1="0%" x2="100%" y2="0%">
+                <linearGradient id="gradientPkBudg650Neg" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
                   <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                </linearGradient>
+                {/* Gradient for positive values (right direction): fades left (start/center), solid at right (end) */}
+                <linearGradient id="gradientBasePos" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#6b7280" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#6b7280" stopOpacity={1} />
+                </linearGradient>
+                <linearGradient id="gradientPkBudg1000Pos" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={1} />
+                </linearGradient>
+                <linearGradient id="gradientPkBudg650Pos" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={1} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#374151" />
