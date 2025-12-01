@@ -305,13 +305,6 @@ export function SankeyVisualization() {
                   adjacentNodes.has(node.name);
                 const nodeDimming =
                   hoveredLinkKey !== null || hoveredNodeName !== null || hoveredLinkNodes !== null;
-                const nodeOpacity = hasAnimated
-                  ? nodeDimming
-                    ? nodeHighlighted
-                      ? 0.95
-                      : 0.3
-                    : 0.9
-                  : 0;
 
                 return (
                   <g key={node.name}>
@@ -323,10 +316,13 @@ export function SankeyVisualization() {
                       rx={8}
                       ry={8}
                       fill={node.color}
-                      fillOpacity={nodeOpacity}
+                      fillOpacity={hasAnimated ? (nodeDimming ? (nodeHighlighted ? 0.38 : 0.12) : 0.35) : 0}
+                      stroke={node.color}
+                      strokeWidth={2}
+                      strokeOpacity={hasAnimated ? (nodeDimming ? (nodeHighlighted ? 1 : 0.3) : 0.9) : 0}
                       className="shadow-sm"
                       style={{
-                        transition: `transform 640ms ease-out, fill-opacity 640ms ease-out, opacity 740ms ease-out`,
+                        transition: `transform 640ms ease-out, fill-opacity 640ms ease-out, stroke-opacity 640ms ease-out, opacity 740ms ease-out`,
                         transitionDelay: hasAnimated && !entryComplete ? nodeDelay(node) : "0ms",
                         transform: hasAnimated ? "translateX(0px)" : "translateX(-16px)",
                         transformBox: "fill-box",

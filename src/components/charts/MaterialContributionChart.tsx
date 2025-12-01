@@ -179,6 +179,9 @@ export function MaterialContributionChart() {
                 dataKey="BAU"
                 name="BAU"
                 fill="var(--color-BAU)"
+                fillOpacity={0.4}
+                stroke="var(--color-BAU)"
+                strokeWidth={2}
                 radius={[8, 8, 0, 0]}
                 isAnimationActive={true}
                 animationDuration={900}
@@ -192,6 +195,9 @@ export function MaterialContributionChart() {
                   dataKey={key}
                   name={chartConfig[key]?.label as string}
                   fill={`var(--color-${key})`}
+                  fillOpacity={0.4}
+                  stroke={`var(--color-${key})`}
+                  strokeWidth={2}
                   radius={[8, 8, 0, 0]}
                   isAnimationActive={true}
                   animationDuration={900}

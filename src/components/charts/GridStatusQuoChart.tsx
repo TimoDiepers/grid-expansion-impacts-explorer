@@ -108,7 +108,13 @@ export function GridStatusQuoChart() {
               animationBegin={0}
             >
               {gridStatusQuoComponents.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[entry.name] || "#8884d8"} />
+                <Cell 
+                  key={`cell-${index}`} 
+                  fill={COLORS[entry.name] || "#8884d8"} 
+                  fillOpacity={0.4}
+                  stroke={COLORS[entry.name] || "#8884d8"}
+                  strokeWidth={2}
+                />
               ))}
             </Bar>
             <ChartLegend
