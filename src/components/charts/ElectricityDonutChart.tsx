@@ -173,14 +173,13 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
 
                   return sortedData.map((entry, index) => {
                     const arcSpan = totalValue > 0 ? (entry.value / totalValue) * 180 : 0;
-                    const cornerRadius =
-                      arcSpan < 1 ? 0.5 :
-                      arcSpan < 2 ? 1.5 :
-                      arcSpan < 3 ? 2 :
-                      arcSpan < 4 ? 3 :
-                      arcSpan < 6 ? 5 :
-                      arcSpan < 7 ? 6 :
-                      8;
+                    // Use a smooth, continuous formula for corner radius that scales with arc size
+                    // This avoids step-function discontinuities and keeps radii proportional to arc dimensions
+                    // For very small arcs (< 2 degrees), use minimal rounding to prevent rendering issues
+                    // For larger arcs, scale up to a max of 8px to match other charts
+                    const cornerRadius = arcSpan < 2
+                      ? Math.max(0.5, arcSpan * 0.5)
+                      : Math.min(8, 1 + arcSpan * 0.4);
 
                     return (
                       <RoundedCell
