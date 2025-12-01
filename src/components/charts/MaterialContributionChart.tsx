@@ -22,6 +22,13 @@ const datasetOptions: { key: PlotDatasetKey; label: string }[] = [
 // Display order for scenarios (align plot and toggles): BAU, 3°C, 2°C, 1.5°C
 const scenarioOrder: ScenarioKey[] = ["scen3", "scen2", "scen15"];
 
+// Mapping from scenario keys to gradient IDs
+const SCENARIO_GRADIENT_MAP: Record<ScenarioKey, string> = {
+  scen3: "gradientScen3",
+  scen2: "gradientScen2",
+  scen15: "gradientScen15",
+};
+
 export function MaterialContributionChart() {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -205,25 +212,20 @@ export function MaterialContributionChart() {
                 style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
               />
 
-              {scenarioOrder.map((key, index) => {
-                const gradientId = key === "scen3" ? "gradientScen3" 
-                  : key === "scen2" ? "gradientScen2" 
-                  : "gradientScen15";
-                return (
-                  <Bar
-                    key={key}
-                    dataKey={key}
-                    name={chartConfig[key]?.label as string}
-                    fill={`url(#${gradientId})`}
-                    radius={[8, 8, 0, 0]}
-                    isAnimationActive={true}
-                    animationDuration={900}
-                    animationBegin={120 + index * 120}
-                    animationEasing="ease-out"
-                    style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
-                  />
-                );
-              })}
+              {scenarioOrder.map((key, index) => (
+                <Bar
+                  key={key}
+                  dataKey={key}
+                  name={chartConfig[key]?.label as string}
+                  fill={`url(#${SCENARIO_GRADIENT_MAP[key]})`}
+                  radius={[8, 8, 0, 0]}
+                  isAnimationActive={true}
+                  animationDuration={900}
+                  animationBegin={120 + index * 120}
+                  animationEasing="ease-out"
+                  style={{ opacity: ready ? 1 : 0, transition: "opacity 450ms ease-out" }}
+                />
+              ))}
             </BarChart>
           </ChartContainer>
         </div>
