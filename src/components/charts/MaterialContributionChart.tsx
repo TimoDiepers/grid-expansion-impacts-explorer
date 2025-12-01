@@ -157,13 +157,22 @@ export function MaterialContributionChart() {
               />
               <ChartLegend
                 verticalAlign="top"
-                content={(props) => (
-                  <ChartLegendContent
-                    {...props}
-                    payload={props.payload ? [...props.payload].reverse() : props.payload}
-                    className="text-[11px]"
-                  />
-                )}
+                content={(props) => {
+                  const { payload } = props;
+                  const normalizedPayload = payload
+                    ? payload.map((item) => ({
+                        ...item,
+                        dataKey: item.dataKey != null ? String(item.dataKey) : undefined,
+                      }))
+                    : payload;
+
+                  return (
+                    <ChartLegendContent
+                      payload={normalizedPayload ? [...normalizedPayload].reverse() : normalizedPayload}
+                      className="text-[11px]"
+                    />
+                  );
+                }}
               />
 
               <Bar

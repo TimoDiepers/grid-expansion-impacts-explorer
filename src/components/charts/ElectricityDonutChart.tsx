@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "framer-motion";
 import { Cell, Pie, PieChart } from "recharts";
 
@@ -50,6 +50,11 @@ function interpolateHexColor(start: string, end: string, t = 0.5) {
 }
 
 const gridLegendColor = interpolateHexColor(GRID_GRADIENT_START, GRID_GRADIENT_END);
+
+type CellWithCornerRadiusProps = React.ComponentProps<typeof Cell> & {
+  cornerRadius?: number;
+};
+const RoundedCell = Cell as unknown as React.FC<CellWithCornerRadiusProps>;
 
 function dataIsEqual(prev: ElectricityDonutChartProps["data"], next: ElectricityDonutChartProps["data"]) {
   if (
@@ -169,14 +174,14 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
                   return sortedData.map((entry, index) => {
                     const arcSpan = totalValue > 0 ? (entry.value / totalValue) * 180 : 0;
                     const cornerRadius =
-                      arcSpan < 1 ? 1 :
-                      arcSpan < 2 ? 2 :
-                      arcSpan < 4 ? 5 :
-                      arcSpan < 6 ? 6 :
+                      arcSpan < 1 ? 0.5 :
+                      arcSpan < 2 ? 1.5 :
+                      arcSpan < 4 ? 3 :
+                      arcSpan < 6 ? 5 :
                       8;
 
                     return (
-                      <Cell
+                      <RoundedCell
                         key={`cell-${index}`}
                         fill={entry.name === "Grid infrastructure" ? "url(#gridGrad)" : entry.fill}
                         fillOpacity={1}
