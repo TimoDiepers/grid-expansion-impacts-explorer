@@ -118,12 +118,12 @@ export function SankeyVisualization() {
 
   const { nodes, links } = useMemo(() => {
     // Ultra-tight margins so the diagram hugs the container edges
-    const margin = { top: 12, right: 4, bottom: 12, left: 4 };
+    const margin = { top: 12, right: 0, bottom: 12, left: 0 };
 
     const sankey = d3Sankey<SankeyNodeDatum, SankeyLinkDatum>()
       .nodeId((d) => d.name)
-      .nodeWidth(14)
-      .nodePadding(16)
+      .nodeWidth(22)
+      .nodePadding(22)
       .extent([
         [margin.left, margin.top],
         [chartWidth - margin.right, chartHeight - margin.bottom],
@@ -141,12 +141,12 @@ export function SankeyVisualization() {
 
   // Staged fade: leftmost column first, then its outgoing links, then next column, etc.
   // Use small stagger so layers overlap while still revealing left-to-right
-  const layerDelayMs = 200;
+  const layerDelayMs = 300;
   const nodeDelayMs = (node: SankeyNodeDatum) => (node.depth ?? 0) * layerDelayMs;
   const nodeDelay = (node: SankeyNodeDatum) => `${nodeDelayMs(node)}ms`;
   const linkDelayMs = (link: SankeyLinkDatum) => {
     const source = link.source as SankeyNodeDatum;
-    return 140 + (source.depth ?? 0) * layerDelayMs;
+    return 160 + (source.depth ?? 0) * layerDelayMs;
   };
   const linkDelay = (link: SankeyLinkDatum) => `${linkDelayMs(link)}ms`;
   const entryEasing = "cubic-bezier(0.16, 1, 0.3, 1)";
@@ -247,9 +247,9 @@ export function SankeyVisualization() {
                     strokeOpacity={effectiveOpacity}
                     className="cursor-pointer"
                     style={{
-                      transition: `transform 920ms ${entryEasing}, stroke-opacity 640ms ${entryEasing}, opacity 640ms ${entryEasing}`,
+                      transition: `transform 640ms ease-out, stroke-opacity 640ms ease-out, opacity 740ms ease-out`,
                       transitionDelay: hasAnimated && !entryComplete ? linkDelay(link) : "0ms",
-                      transform: hasAnimated ? "translateX(0px)" : "translateX(-12px)",
+                      transform: hasAnimated ? "translateX(0px)" : "translateX(-24px)",
                       transformBox: "fill-box",
                       transformOrigin: "center",
                       pointerEvents: hasAnimated ? "auto" : "none",
@@ -309,7 +309,7 @@ export function SankeyVisualization() {
                       fillOpacity={nodeOpacity}
                       className="shadow-sm"
                       style={{
-                        transition: `transform 920ms ${entryEasing}, fill-opacity 640ms ${entryEasing}, opacity 640ms ${entryEasing}`,
+                        transition: `transform 640ms ease-out, fill-opacity 640ms ease-out, opacity 740ms ease-out`,
                         transitionDelay: hasAnimated && !entryComplete ? nodeDelay(node) : "0ms",
                         transform: hasAnimated ? "translateX(0px)" : "translateX(-16px)",
                         transformBox: "fill-box",

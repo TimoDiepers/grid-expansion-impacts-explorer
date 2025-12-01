@@ -1,14 +1,15 @@
-import { Pie, PieChart, Cell, type LegendPayload } from "recharts";
+import { useEffect, useRef, useState } from "react";
+import { useInView } from "framer-motion";
+import { Cell, Pie, PieChart } from "recharts";
+
 import {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
-import { useInView } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
 
 interface ElectricityDonutChartProps {
   data: {
@@ -28,7 +29,7 @@ const COLORS: Record<string, string> = {
   Biomass: "#22c55e",
   Nuclear: "#fbbf24",
   Hydro: "#06b6d4",
-  Hydrogen: "#f755beff",
+  Hydrogen: "#ed7577ff",
   Other: "#9ca3af",
   "Grid infrastructure": "#1e40af",
 };
@@ -40,22 +41,19 @@ function interpolateHexColor(start: string, end: string, t = 0.5) {
   const parse = (hex: string) => hex.replace("#", "").match(/.{2}/g)!.map((h) => parseInt(h, 16));
   const [r1, g1, b1] = parse(start);
   const [r2, g2, b2] = parse(end);
-
   const toHex = (n: number) => n.toString(16).padStart(2, "0");
-
   return `#${toHex(Math.round(r1 + (r2 - r1) * t))}${toHex(Math.round(g1 + (g2 - g1) * t))}${toHex(Math.round(b1 + (b2 - b1) * t))}`;
 }
 
+const gridLegendColor = interpolateHexColor(GRID_GRADIENT_START, GRID_GRADIENT_END);
+
 export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [hasAnimated, setHasAnimated] = useState(false);
-  // hover state removed
 
   useEffect(() => {
-    if (isInView && !hasAnimated) {
-      setHasAnimated(true);
-    }
+    if (isInView && !hasAnimated) setHasAnimated(true);
   }, [isInView, hasAnimated]);
 
   const pieData = Object.entries(data.generation).map(([name, values]) => ({
@@ -65,7 +63,6 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
     fill: COLORS[name] || "#9ca3af",
   }));
 
-  // Add grid infrastructure
   pieData.push({
     name: "Grid infrastructure",
     value: data.gridShare,
@@ -73,7 +70,6 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
     fill: COLORS["Grid infrastructure"],
   });
 
-  // Sort by value descending, but keep Grid infrastructure at the end
   const sortedData = [
     ...pieData
       .filter((d) => d.name !== "Grid infrastructure")
@@ -81,14 +77,8 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
     pieData.find((d) => d.name === "Grid infrastructure")!,
   ];
 
-  // Use zeroed data until in view
-  const chartData = hasAnimated 
-    ? sortedData 
-    : sortedData.map(d => ({ ...d, value: 0 }));
+  const chartData = hasAnimated ? sortedData : sortedData.map((d) => ({ ...d, value: 0 }));
 
-  const gridLegendColor = interpolateHexColor(GRID_GRADIENT_START, GRID_GRADIENT_END);
-
-  // Build chart config dynamically
   const chartConfig = sortedData.reduce((acc, item) => {
     acc[item.name] = {
       label: item.name,
@@ -97,41 +87,23 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
     return acc;
   }, {} as ChartConfig);
 
-  const renderLegend = (legendProps: unknown) => {
-    const payload = (legendProps as { payload?: LegendPayload[] })?.payload;
-    const normalizedPayload = payload?.map((item) => {
-      const key = String(item.dataKey ?? item.value);
-      if (key === "Grid infrastructure") {
-        return { ...item, color: gridLegendColor, dataKey: key, value: item.value };
-      }
-      return { ...item, dataKey: key, value: item.value };
-    });
-    return (
-      <ChartLegendContent
-        payload={normalizedPayload as any}
-        className="text-[10px] sm:text-xs flex-wrap gap-1 justify-center -translate-y-20"
-      />
-    );
-  };
-
   return (
     <div ref={ref} className="flex flex-col items-center w-full">
-      {/* Half-circle chart with shadcn container */}
       <ChartContainer
         config={chartConfig}
-        className="relative w-full h-[280px] sm:h-[360px] md:h-[420px]"
+        className="relative w-full h-[320px] sm:h-[400px] md:h-[360px] -mb-20"
       >
-        <PieChart margin={{ top: -250, right: 0, bottom: 0, left: 0 }}>
-          <defs>
-            <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="20%">
-              <stop offset="0%" stopColor="#645de8ff" stopOpacity={1} />
-              <stop offset="100%" stopColor="#a855f7" stopOpacity={1} />
-            </linearGradient>
-          </defs>
+        <PieChart margin={{ top: -200, right: 0, bottom: 0, left: 0 }} className="-translate-y-22">
+            <defs>
+              <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="20%">
+                <stop offset="0%" stopColor={GRID_GRADIENT_START} stopOpacity={1} />
+                <stop offset="100%" stopColor={GRID_GRADIENT_END} stopOpacity={1} />
+              </linearGradient>
+            </defs>
 
-          <ChartTooltip
-            content={
-              <ChartTooltipContent
+            <ChartTooltip
+              content={
+                <ChartTooltipContent
                 formatter={(value, name) => (
                   <div className="flex items-center justify-between gap-2 sm:gap-4">
                     <span className="text-gray-400 text-xs">{name}</span>
@@ -141,12 +113,12 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
                   </div>
                 )}
               />
-            }
-          />
-          <Pie
+              }
+            />
+            <Pie
             data={chartData}
             cx="48%"
-            cy="82%"
+            cy="100%"
             startAngle={180}
             endAngle={0}
             innerRadius="55%"
@@ -157,27 +129,38 @@ export function ElectricityDonutChart({ data }: ElectricityDonutChartProps) {
             isAnimationActive={true}
             animationDuration={1200}
             animationBegin={0}
-          >
-            {sortedData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.name === "Grid infrastructure" ? "url(#gridGrad)" : entry.fill}
+              >
+                {sortedData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.name === "Grid infrastructure" ? "url(#gridGrad)" : entry.fill}
                 fillOpacity={1}
                 opacity={1}
                 stroke="transparent"
                 strokeWidth={1}
                 className={entry.name === "Grid infrastructure" ? "grid-pulse" : undefined}
-              />
-            ))}
-          </Pie>
+                  />
+                ))}
+              </Pie>
 
-          <ChartLegend
-            verticalAlign="bottom"
-            content={(props) => renderLegend(props)}
-          />
-        </PieChart>
+            <ChartLegend
+              verticalAlign="bottom"
+              height={64}
+              content={() => (
+                <ChartLegendContent
+                  payload={sortedData.map((item) => ({
+                    value: item.name,
+                    dataKey: item.name,
+                    color: item.name === "Grid infrastructure" ? gridLegendColor : item.fill,
+                  })) as any}
+                  className="text-[10px] sm:text-xs flex-wrap gap-1 justify-center"
+                />
+              )}
+            />
+          </PieChart>
       </ChartContainer>
-      <div className="mt-1 text-center -translate-y-16 sm:-translate-y-48">
+
+      <div className="mt-1 text-center">
         <div className="text-sm sm:text-base font-semibold text-gray-100">
           {data.totalGCO2e} g CO₂-eq/kWh
         </div>

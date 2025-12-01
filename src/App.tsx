@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
+import { motion, useInView, animate, useMotionValue } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+function CountUp({
+  target,
+  start = false,
+  duration = 1,
+  delay = 0,
+  startValue = 0,
+  className = "",
+  suffix = "",
+}: {
+  target: number;
+  start?: boolean;
+  duration?: number;
+  delay?: number;
+  startValue?: number;
+  className?: string;
+  suffix?: string;
+}) {
+  const count = useMotionValue(startValue);
+  const [display, setDisplay] = useState(startValue);
+
+  useEffect(() => {
+    count.set(startValue);
+    setDisplay(startValue);
+    if (start) {
+      const controls = animate(count, target, {
+        duration,
+        delay,
+        ease: [0.16, 1, 0.3, 1],
+        onUpdate: (v) => setDisplay(Math.round(v)),
+      });
+      return () => controls.stop();
+    }
+  }, [start, target, duration, delay, count, startValue]);
+
+  return <span className={className}>{display}{suffix}</span>;
+}
 
 // Animated Section component for scroll-triggered animations
 function AnimatedSection({ 
@@ -162,6 +199,8 @@ function App() {
   // Calculate key metrics
   const totalGridImpact = gridStatusQuoComponents.reduce((sum, c) => sum + c.value, 0);
   const heroRef = useRef(null);
+  const gridGrowthRef = useRef<HTMLDivElement | null>(null);
+  const gridGrowthInView = useInView(gridGrowthRef, { once: true, margin: "0px 0px -10% 0px" });
   const [selectedScenario, setSelectedScenario] = useState<"npi2045" | "pkBudg1000_2045" | "pkBudg650_2045">("pkBudg650_2045");
   const baseGridShare = electricityImpactData.statusQuo.gridShare;
 
@@ -317,7 +356,7 @@ function App() {
           />
 
           <div className="flex flex-col gap-3 sm:gap-4 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 items-stretch">
               {[
                 {
                   ...electricityImpactData.statusQuo,
@@ -341,9 +380,10 @@ function App() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.08 }}
+                  className="h-full"
                 >
-                  <Card className="card-hover">
-                    <CardHeader className="flex w-full flex-row items-center justify-between gap-3 space-y-0 p-4 sm:p-5">
+                  <Card className="card-hover h-full flex flex-col">
+                    <CardHeader className="flex w-full flex-row items-start justify-between gap-3 p-4 sm:p-5 min-h-[140px] max-h-[220px] max-[450px]:flex-col max-[450px]:items-start">
                       {scenario.scenario === "Status Quo" ? (
                         <>
                   <div className="flex flex-col flex-1 min-w-0">
@@ -377,8 +417,8 @@ function App() {
                   </div>
                 </>
               )}
-                <div className="flex items-center flex-shrink-0">
-                  <div className="flex items-center gap-2 rounded-lg border border-indigo-400/40 bg-gradient-to-br from-[#645de8] to-[#a855f7] px-3 py-2 shadow-lg shadow-indigo-900/30 text-left min-w-[160px]">
+                <div className="flex items-center flex-shrink-0 w-auto max-[420px]:w-full">
+                  <div className="flex items-center gap-2 rounded-lg border border-indigo-400/40 bg-gradient-to-br from-[#645de8] to-[#a855f7] px-3 py-2 shadow-lg shadow-indigo-900/30 text-left w-auto min-w-[160px]">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-200 opacity-75" />
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-100" />
@@ -393,7 +433,7 @@ function App() {
                   </div>
                 </div>
               </CardHeader>
-                    <CardContent className="px-2 pb-4">
+                    <CardContent className="px-2 pb-4 flex-1 flex items-center justify-center h-[360px] sm:h-[400px] md:h-[460px]">
                       <ElectricityDonutChart data={scenario as any} />
                     </CardContent>
                   </Card>
@@ -404,9 +444,19 @@ function App() {
 
           <Card className="overflow-hidden border-0 bg-gradient-to-br from-blue-950/50 via-violet-950/50 to-blue-950/50 card-hover">
             <CardContent className="py-8 sm:py-10">
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold gradient-text mb-4">
-                  1% → 22%
+              <div className="text-center" ref={gridGrowthRef}>
+                <div className="text-4xl sm:text-5xl md:text-6xl font-bold gradient-text mb-4 flex items-center justify-center gap-3">
+                  <span className="inline-block">1%</span>
+                  <span aria-hidden>→</span>
+                  <CountUp
+                    target={22}
+                    start={gridGrowthInView}
+                    duration={3}
+                    delay={0}
+                    startValue={2}
+                    className="inline-block"
+                    suffix="%"
+                  />
                 </div>
                 <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto">
                   Grid infrastructure's share of total electricity impact increases from 
