@@ -78,7 +78,7 @@ function buildSankeyGraph() {
   return { nodes, links };
 }
 
-function useContainerSize(ref: React.RefObject<HTMLDivElement>) {
+function useContainerSize(ref: React.RefObject<HTMLDivElement | null>) {
   const [size, setSize] = useState({ width: 960, height: 460 });
 
   useEffect(() => {
@@ -100,7 +100,7 @@ function useContainerSize(ref: React.RefObject<HTMLDivElement>) {
 }
 
 export function SankeyVisualization() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const { width: chartWidth, height: chartHeight } = useContainerSize(containerRef);
   const baseGraph = useMemo(() => buildSankeyGraph(), []);
 
@@ -125,7 +125,7 @@ export function SankeyVisualization() {
     return { nodes: graph.nodes, links: graph.links };
   }, [baseGraph, chartWidth, chartHeight]);
 
-  const linkPath = useMemo(() => sankeyLinkHorizontal<SankeyLinkDatum, SankeyNodeDatum>(), []);
+  const linkPath = useMemo(() => sankeyLinkHorizontal<SankeyNodeDatum, SankeyLinkDatum>(), []);
 
   const [tooltip, setTooltip] = useState<{
     x: number;
@@ -199,7 +199,7 @@ export function SankeyVisualization() {
                 return (
                   <path
                     key={id}
-                    d={linkPath(link)}
+                    d={linkPath(link) ?? ""}
                     fill="none"
                     stroke={`url(#${id})`}
                     strokeWidth={strokeWidth}

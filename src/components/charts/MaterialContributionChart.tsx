@@ -92,15 +92,7 @@ function foldSmallSegments(row: FoldedRow): FoldedRow {
 }
 
 function roundedStackShape(key: MaterialKey, payload: FoldedRow) {
-  // Find first and last non-zero keys in this row
-  let firstKey: MaterialKey | undefined;
-  for (const k of SEGMENTS) {
-    if ((payload[k] ?? 0) > 1e-6) {
-      firstKey = k;
-      break;
-    }
-  }
-
+  // Find last non-zero key in this row
   let lastKey: MaterialKey | undefined;
   for (let i = SEGMENTS.length - 1; i >= 0; i--) {
     const k = SEGMENTS[i];
