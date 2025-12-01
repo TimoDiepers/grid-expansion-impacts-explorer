@@ -129,22 +129,22 @@ export function MaterialContributionChart() {
               barCategoryGap={20}
             >
               <defs>
-                {/* Gradients for vertical bars: fades at bottom (start), solid at top (end) */}
+                {/* Gradients for vertical bars: fades at bottom (start), 80% opacity at top (end) */}
                 <linearGradient id="gradientBAU" x1="0%" y1="100%" x2="0%" y2="0%">
                   <stop offset="0%" stopColor="#6b7280" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#6b7280" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#6b7280" stopOpacity={0.8} />
                 </linearGradient>
                 <linearGradient id="gradientScen3" x1="0%" y1="100%" x2="0%" y2="0%">
                   <stop offset="0%" stopColor="#ef4444" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#ef4444" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0.8} />
                 </linearGradient>
                 <linearGradient id="gradientScen2" x1="0%" y1="100%" x2="0%" y2="0%">
                   <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.8} />
                 </linearGradient>
                 <linearGradient id="gradientScen15" x1="0%" y1="100%" x2="0%" y2="0%">
                   <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#374151" />
@@ -205,6 +205,8 @@ export function MaterialContributionChart() {
                 dataKey="BAU"
                 name="BAU"
                 fill="url(#gradientBAU)"
+                stroke="#6b7280"
+                strokeWidth={1.5}
                 radius={[8, 8, 0, 0]}
                 isAnimationActive={true}
                 animationDuration={900}
@@ -218,6 +220,8 @@ export function MaterialContributionChart() {
                   dataKey={key}
                   name={chartConfig[key]?.label as string}
                   fill={`url(#${SCENARIO_GRADIENT_MAP[key]})`}
+                  stroke={scenarioColors[key]}
+                  strokeWidth={1.5}
                   radius={[8, 8, 0, 0]}
                   isAnimationActive={true}
                   animationDuration={900}

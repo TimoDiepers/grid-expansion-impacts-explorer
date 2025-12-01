@@ -60,31 +60,31 @@ export function ImpactCategoryComparisonChart() {
               barGap={2}
             >
               <defs>
-                {/* Gradient for negative values (left direction): solid at left (end), fades right (start/center) */}
+                {/* Gradient for negative values (left direction): 80% opacity at left (end), fades right (start/center) */}
                 <linearGradient id="gradientBaseNeg" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#6b7280" stopOpacity={1} />
+                  <stop offset="0%" stopColor="#6b7280" stopOpacity={0.8} />
                   <stop offset="100%" stopColor="#6b7280" stopOpacity={0.3} />
                 </linearGradient>
                 <linearGradient id="gradientPkBudg1000Neg" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8} />
                   <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.3} />
                 </linearGradient>
                 <linearGradient id="gradientPkBudg650Neg" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.8} />
                   <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.3} />
                 </linearGradient>
-                {/* Gradient for positive values (right direction): fades left (start/center), solid at right (end) */}
+                {/* Gradient for positive values (right direction): fades left (start/center), 80% opacity at right (end) */}
                 <linearGradient id="gradientBasePos" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#6b7280" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#6b7280" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#6b7280" stopOpacity={0.8} />
                 </linearGradient>
                 <linearGradient id="gradientPkBudg1000Pos" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.8} />
                 </linearGradient>
                 <linearGradient id="gradientPkBudg650Pos" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.8} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#374151" />
@@ -126,6 +126,8 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="base"
                 radius={[0, 8, 8, 0]}
+                stroke="#6b7280"
+                strokeWidth={1.5}
                 isAnimationActive={true}
                 animationDuration={1200}
                 animationBegin={0}
@@ -140,6 +142,8 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="pkBudg1000"
                 radius={[0, 8, 8, 0]}
+                stroke="#3b82f6"
+                strokeWidth={1.5}
                 isAnimationActive={true}
                 animationDuration={1200}
                 animationBegin={200}
@@ -154,6 +158,8 @@ export function ImpactCategoryComparisonChart() {
               <Bar
                 dataKey="pkBudg650"
                 radius={[0, 8, 8, 0]}
+                stroke="#8b5cf6"
+                strokeWidth={1.5}
                 isAnimationActive={true}
                 animationDuration={1200}
                 animationBegin={400}
