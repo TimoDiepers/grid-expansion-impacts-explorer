@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useInView } from "framer-motion";
 import { sankey as d3Sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { sankeyData } from "@/data";
 
@@ -39,6 +40,7 @@ type SankeyNodeDatum = {
   y0?: number;
   y1?: number;
   value?: number;
+  depth?: number;
 };
 
 type SankeyLinkDatum = {
@@ -101,6 +103,16 @@ function useContainerSize(ref: React.RefObject<HTMLDivElement | null>) {
 
 export function SankeyVisualization() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(containerRef, { once: true, margin: "-100px" });
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const [entryComplete, setEntryComplete] = useState(false);
+
+  useEffect(() => {
+    if (isInView && !hasAnimated) {
+      setHasAnimated(true);
+    }
+  }, [isInView, hasAnimated]);
+
   const { width: chartWidth, height: chartHeight } = useContainerSize(containerRef);
   const baseGraph = useMemo(() => buildSankeyGraph(), []);
 
@@ -126,6 +138,29 @@ export function SankeyVisualization() {
   }, [baseGraph, chartWidth, chartHeight]);
 
   const linkPath = useMemo(() => sankeyLinkHorizontal<SankeyNodeDatum, SankeyLinkDatum>(), []);
+
+  // Staged fade: leftmost column first, then its outgoing links, then next column, etc.
+  // Use small stagger so layers overlap while still revealing left-to-right
+  const layerDelayMs = 200;
+  const nodeDelayMs = (node: SankeyNodeDatum) => (node.depth ?? 0) * layerDelayMs;
+  const nodeDelay = (node: SankeyNodeDatum) => `${nodeDelayMs(node)}ms`;
+  const linkDelayMs = (link: SankeyLinkDatum) => {
+    const source = link.source as SankeyNodeDatum;
+    return 140 + (source.depth ?? 0) * layerDelayMs;
+  };
+  const linkDelay = (link: SankeyLinkDatum) => `${linkDelayMs(link)}ms`;
+  const entryEasing = "cubic-bezier(0.16, 1, 0.3, 1)";
+
+  // Remove stagger delay after the initial entrance so hover states respond immediately
+  useEffect(() => {
+    if (!hasAnimated) return;
+    const maxNodeDelay = nodes.length ? Math.max(...nodes.map(nodeDelayMs)) : 0;
+    const maxLinkDelay = links.length ? Math.max(...links.map(linkDelayMs)) : 0;
+    const maxDelay = Math.max(maxNodeDelay, maxLinkDelay);
+    // longer buffer to align with slower entrance while still clearing hover delay
+    const timer = window.setTimeout(() => setEntryComplete(true), maxDelay + 900);
+    return () => window.clearTimeout(timer);
+  }, [hasAnimated, nodes, links]);
 
   const [tooltip, setTooltip] = useState<{
     x: number;
@@ -194,7 +229,13 @@ export function SankeyVisualization() {
                   hoveredNodeName === link.sourceName ||
                   hoveredNodeName === link.targetName;
                 const isDimming = hoveredLinkKey !== null || hoveredNodeName !== null;
-                const effectiveOpacity = isDimming ? (isHighlighted ? 0.42 : 0.1) : 0.35;
+                const effectiveOpacity = hasAnimated
+                  ? isDimming
+                    ? isHighlighted
+                      ? 0.42
+                      : 0.1
+                    : 0.35
+                  : 0;
 
                 return (
                   <path
@@ -205,7 +246,14 @@ export function SankeyVisualization() {
                     strokeWidth={strokeWidth}
                     strokeOpacity={effectiveOpacity}
                     className="cursor-pointer"
-                    style={{ transition: "stroke-opacity 220ms ease, opacity 220ms ease" }}
+                    style={{
+                      transition: `transform 920ms ${entryEasing}, stroke-opacity 640ms ${entryEasing}, opacity 640ms ${entryEasing}`,
+                      transitionDelay: hasAnimated && !entryComplete ? linkDelay(link) : "0ms",
+                      transform: hasAnimated ? "translateX(0px)" : "translateX(-12px)",
+                      transformBox: "fill-box",
+                      transformOrigin: "center",
+                      pointerEvents: hasAnimated ? "auto" : "none",
+                    }}
                     onMouseMove={(event) => {
                       setHoveredLinkKey(linkKey);
                       setHoveredLinkNodes([link.sourceName, link.targetName]);
@@ -240,7 +288,13 @@ export function SankeyVisualization() {
                   (hoveredLinkNodes?.includes(node.name) ?? false);
                 const nodeDimming =
                   hoveredLinkKey !== null || hoveredNodeName !== null || hoveredLinkNodes !== null;
-                const nodeOpacity = nodeDimming ? (nodeHighlighted ? 0.95 : 0.3) : 0.9;
+                const nodeOpacity = hasAnimated
+                  ? nodeDimming
+                    ? nodeHighlighted
+                      ? 0.95
+                      : 0.3
+                    : 0.9
+                  : 0;
 
                 return (
                   <g key={node.name}>
@@ -254,7 +308,14 @@ export function SankeyVisualization() {
                       fill={node.color}
                       fillOpacity={nodeOpacity}
                       className="shadow-sm"
-                      style={{ transition: "fill-opacity 220ms ease, opacity 220ms ease" }}
+                      style={{
+                        transition: `transform 920ms ${entryEasing}, fill-opacity 640ms ${entryEasing}, opacity 640ms ${entryEasing}`,
+                        transitionDelay: hasAnimated && !entryComplete ? nodeDelay(node) : "0ms",
+                        transform: hasAnimated ? "translateX(0px)" : "translateX(-16px)",
+                        transformBox: "fill-box",
+                        transformOrigin: "center",
+                        pointerEvents: hasAnimated ? "auto" : "none",
+                      }}
                       onMouseMove={(event) => {
                         setHoveredNodeName(node.name);
                         setTooltip({
@@ -277,6 +338,14 @@ export function SankeyVisualization() {
                         textAnchor={textAnchor}
                         dominantBaseline="middle"
                         className="fill-gray-200 text-[11px] sm:text-[12px] font-medium"
+                        opacity={hasAnimated ? 0.95 : 0}
+                        style={{
+                          transition: `transform 920ms ${entryEasing}, opacity 640ms ${entryEasing}`,
+                          transitionDelay: hasAnimated && !entryComplete ? nodeDelay(node) : "0ms",
+                          transform: hasAnimated ? "translateX(0px)" : "translateX(-16px)",
+                          transformBox: "fill-box",
+                          transformOrigin: "center",
+                        }}
                       >
                         {node.name.length > 16 ? `${node.name.slice(0, 16)}…` : node.name}
                       </text>
