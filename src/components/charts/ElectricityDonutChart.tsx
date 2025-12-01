@@ -176,10 +176,10 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
                     // Use a smooth, continuous formula for corner radius that scales with arc size
                     // This avoids step-function discontinuities and keeps radii proportional to arc dimensions
                     // For very small arcs (< 2 degrees), use minimal rounding to prevent rendering issues
-                    // For larger arcs, scale up to a max of 6px which works reliably across screen sizes
+                    // For larger arcs, scale up to a max of 8px to match other charts
                     const cornerRadius = arcSpan < 2
                       ? Math.max(0.5, arcSpan * 0.5)
-                      : Math.min(6, 1 + arcSpan * 0.4);
+                      : Math.min(8, 1 + arcSpan * 0.4);
 
                     return (
                       <RoundedCell
