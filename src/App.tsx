@@ -199,7 +199,7 @@ function App() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 bg-zinc-800/95 border border-zinc-700/50 text-zinc-300 px-4 py-2 rounded-full mb-6 will-change-transform"
+            className="inline-flex items-center gap-2 bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 px-4 py-2 rounded-full mb-6 will-change-transform"
           >
             <Activity className="h-4 w-4 text-emerald-400" />
             <span className="text-xs sm:text-sm font-medium">Prospective Life Cycle Assessment</span>
@@ -211,7 +211,7 @@ function App() {
             transition={{ duration: 0.6, delay: 0.08, ease: "easeOut" }}
             className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 will-change-transform"
           >
-            <span className="text-zinc-100">Germany's</span>
+            <span className="text-zinc-100">Climate Impacts of</span>
             <br />
             <span className="gradient-text">Grid Expansion</span>
           </motion.h1>
@@ -222,8 +222,8 @@ function App() {
             transition={{ duration: 0.6, delay: 0.16, ease: "easeOut" }}
             className="text-base sm:text-lg md:text-xl text-zinc-400 mb-10 leading-relaxed max-w-2xl mx-auto will-change-transform"
           >
-            Explore the environmental impact of electricity grid infrastructure 
-            from 2023 to 2045 across multiple climate scenarios
+            Explore the environmental impact of electricity grid expansion 
+            through 2045 for the case of Germany, considering a range of climate pathways
           </motion.p>
 
           {/* Key Metrics - Animate each card sequentially */}
@@ -286,7 +286,7 @@ function App() {
               className="group"
             >
               Start Exploring
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-400 group-hover:translate-x-1" />
             </Button>
             <Button
               variant="outline"
