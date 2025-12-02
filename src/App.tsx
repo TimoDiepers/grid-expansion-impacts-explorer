@@ -62,54 +62,40 @@ function AnimatedSection({
   );
 }
 
-// Section Header component with professional styling
+// Section Header component with minimal styling
 function SectionHeader({
   step,
   title,
   subtitle,
-  accent = "blue",
 }: {
   step: number;
   title: string;
   subtitle: string;
   accent?: "blue" | "emerald" | "violet" | "amber" | "cyan" | "rose" | "indigo" | "teal" | "lime";
 }) {
-  const accentColors = {
-    blue: "from-blue-500 to-cyan-500",
-    emerald: "from-emerald-500 to-teal-500",
-    violet: "from-violet-500 to-purple-500",
-    amber: "from-amber-500 to-orange-500",
-    cyan: "from-cyan-400 to-blue-500",
-    rose: "from-rose-500 to-pink-500",
-    indigo: "from-indigo-500 to-sky-500",
-    teal: "from-teal-400 to-emerald-500",
-    lime: "from-lime-400 to-green-500",
-  };
-
   return (
     <div className="mb-8 sm:mb-10">
       <div className="flex items-center gap-3 mb-3">
-        <div className={`flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br ${accentColors[accent]} flex items-center justify-center text-white font-bold text-sm sm:text-base shadow-lg`}>
+        <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded border border-zinc-700 bg-transparent flex items-center justify-center text-zinc-400 font-medium text-sm">
           {step}
         </div>
-        <Badge variant="secondary" className="text-xs">Step {step} of 7</Badge>
+        <span className="text-xs text-zinc-500 uppercase tracking-wider">Step {step} of 7</span>
       </div>
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-100 tracking-tight mb-2">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-zinc-100 tracking-tight mb-2">
         {title}
       </h2>
-      <p className="text-zinc-400 text-sm sm:text-base max-w-2xl">{subtitle}</p>
+      <p className="text-zinc-500 text-sm sm:text-base max-w-2xl">{subtitle}</p>
     </div>
   );
 }
 
-// Metric Card component
+// Metric Card component - minimal
 function MetricCard({
   label,
   value,
   unit,
   trend,
   icon: Icon,
-  color = "blue",
 }: {
   label: string;
   value: string;
@@ -118,40 +104,31 @@ function MetricCard({
   icon: React.ElementType;
   color?: "blue" | "emerald" | "violet" | "amber" | "rose";
 }) {
-  const colorClasses = {
-    blue: "text-blue-400 bg-gradient-to-br from-blue-950/90 to-blue-900/80 border-blue-500/30",
-    emerald: "text-emerald-400 bg-gradient-to-br from-emerald-950/90 to-emerald-900/80 border-emerald-500/30",
-    violet: "text-violet-400 bg-gradient-to-br from-violet-950/90 to-violet-900/80 border-violet-500/30",
-    amber: "text-amber-400 bg-gradient-to-br from-amber-950/90 to-amber-900/80 border-amber-500/30",
-    rose: "text-rose-400 bg-gradient-to-br from-rose-950/90 to-rose-900/80 border-rose-500/30",
-  };
-
   return (
-    <div className={`rounded-xl border p-4 sm:p-5 ${colorClasses[color]}`}>
+    <div className="rounded border border-zinc-800 p-4 sm:p-5 bg-transparent">
       <div className="flex items-center justify-between mb-3">
-        <Icon className="h-5 w-5 opacity-70" />
+        <Icon className="h-4 w-4 text-zinc-500" />
         {trend && (
-          <Badge variant="success" className="text-[10px] sm:text-xs">
+          <span className="text-[10px] sm:text-xs text-zinc-400 border border-zinc-700 px-1.5 py-0.5 rounded">
             {trend}
-          </Badge>
+          </span>
         )}
       </div>
-      <div className="text-2xl sm:text-3xl font-bold mb-1">{value}</div>
-      <div className="text-xs sm:text-sm opacity-70">{unit}</div>
-      <div className="text-xs text-zinc-400 mt-2">{label}</div>
+      <div className="text-2xl sm:text-3xl font-semibold text-zinc-100 mb-1">{value}</div>
+      <div className="text-xs sm:text-sm text-zinc-500">{unit}</div>
+      <div className="text-xs text-zinc-600 mt-2">{label}</div>
     </div>
   );
 }
 
-// Scroll indicator component
+// Scroll indicator component - minimal
 function ScrollIndicator() {
   return (
-    <div className="flex flex-col items-center gap-2 text-zinc-500">
+    <div className="flex flex-col items-center gap-2 text-zinc-600">
       <span className="text-xs uppercase tracking-widest">Scroll to explore</span>
       <motion.div
-        animate={{ y: [0, 6, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        className="p-2 rounded-full border border-zinc-800 bg-zinc-900/50"
+        animate={{ y: [0, 4, 0] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       >
         <ChevronDown className="h-4 w-4" />
       </motion.div>
@@ -180,47 +157,39 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 overflow-x-hidden relative">
-      {/* Fixed grid background */}
-      <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0" />
+    <div className="min-h-screen bg-black text-zinc-200 overflow-x-hidden relative">
       {/* Hero Section */}
       <section
         ref={heroRef}
         className="min-h-screen flex flex-col justify-center items-center px-4 py-8 relative"
       >
-        {/* Background gradient orbs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-violet-500/10 rounded-full blur-3xl" />
-        </div>
-
         <div className="text-center max-w-4xl mx-auto relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 px-4 py-2 rounded-full mb-6 will-change-transform"
+            className="inline-flex items-center gap-2 border border-zinc-800 text-zinc-400 px-3 py-1.5 rounded mb-6 will-change-transform"
           >
-            <Activity className="h-4 w-4 text-emerald-400" />
-            <span className="text-xs sm:text-sm font-medium">Prospective Life Cycle Assessment</span>
+            <Activity className="h-3.5 w-3.5" />
+            <span className="text-xs font-medium">Prospective Life Cycle Assessment</span>
           </motion.div>
 
           <motion.h1 
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.08, ease: "easeOut" }}
-            className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 will-change-transform"
+            className="text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight mb-6 will-change-transform"
           >
             <span className="text-zinc-100">Climate Impacts of</span>
             <br />
-            <span className="gradient-text">Grid Expansion</span>
+            <span className="text-zinc-100">Grid Expansion</span>
           </motion.h1>
 
           <motion.p 
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.16, ease: "easeOut" }}
-            className="text-base sm:text-lg md:text-xl text-zinc-400 mb-10 leading-relaxed max-w-2xl mx-auto will-change-transform"
+            className="text-base sm:text-lg text-zinc-500 mb-10 leading-relaxed max-w-2xl mx-auto will-change-transform"
           >
             Explore the environmental impact of electricity grid expansion 
             through 2045 for the case of Germany, considering a range of climate pathways
@@ -239,7 +208,6 @@ function App() {
                 value={totalGridImpact.toFixed(1)}
                 unit="Mt CO₂-eq"
                 icon={BarChart3}
-                color="blue"
               />
             </motion.div>
             <motion.div
@@ -254,7 +222,6 @@ function App() {
                 unit="vs BAU"
                 trend="1.5°C"
                 icon={TrendingUp}
-                color="emerald"
               />
             </motion.div>
             <motion.div
@@ -268,7 +235,6 @@ function App() {
                 value="3"
                 unit="Climate pathways"
                 icon={Layers}
-                color="violet"
               />
             </motion.div>
           </div>
@@ -280,13 +246,13 @@ function App() {
             className="flex flex-col sm:flex-row gap-3 justify-center mb-12 will-change-transform"
           >
             <Button
-              variant="gradient"
+              variant="default"
               size="lg"
               onClick={() => scrollToSection("electricity-evolution")}
               className="group"
             >
               Start Exploring
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-400 group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
             </Button>
             <Button
               variant="outline"
@@ -316,7 +282,6 @@ function App() {
             step={1}
             title="Electricity Generation Evolution"
             subtitle="How the generation mix transforms and what it means for grid infrastructure's relative impact"
-            accent="teal"
           />
 
           <div className="flex flex-col gap-3 sm:gap-4 mb-6">
@@ -366,7 +331,7 @@ function App() {
                       value={selectedScenario}
                       onValueChange={(v) => setSelectedScenario(v as typeof selectedScenario)}
                     >
-                      <SelectTrigger className="w-48 bg-zinc-900 border-zinc-800 text-sm">
+                      <SelectTrigger className="w-48 bg-transparent border-zinc-700 text-sm">
                         <SelectValue placeholder="Select scenario" />
                       </SelectTrigger>
                       <SelectContent>
@@ -382,16 +347,15 @@ function App() {
                 </>
               )}
                 <div className="flex items-center flex-shrink-0 w-auto max-[420px]:w-full">
-                  <div className="flex items-center gap-2 rounded-lg border border-indigo-400/40 bg-gradient-to-br from-[#645de8] to-[#a855f7] px-3 py-2 shadow-lg shadow-indigo-900/30 text-left w-auto min-w-[160px]">
+                  <div className="flex items-center gap-2 rounded border border-zinc-700 bg-transparent px-3 py-2 text-left w-auto min-w-[160px]">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-200 opacity-75" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-sky-100" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-zinc-400" />
                     </span>
                     <div className="leading-tight">
-                      <div className="text-[10px] uppercase tracking-[0.08em] text-indigo-100">Grid share</div>
-                      <div className="flex items-center gap-2 text-xs text-white">
+                      <div className="text-[10px] uppercase tracking-[0.08em] text-zinc-500">Grid share</div>
+                      <div className="flex items-center gap-2 text-xs text-zinc-200">
                         <span className="font-semibold">{scenario.gridShare.toFixed(1)}%</span>
-                        <span className="text-[10px] text-indigo-100/80">{formatGridDelta(scenario.gridShare)}</span>
+                        <span className="text-[10px] text-zinc-500">{formatGridDelta(scenario.gridShare)}</span>
                       </div>
                     </div>
                   </div>
@@ -406,12 +370,12 @@ function App() {
             </div>
           </div>
 
-          <Card className="overflow-hidden border-0 bg-gradient-to-br from-blue-950/50 via-violet-950/50 to-blue-950/50 card-hover">
+          <Card className="overflow-hidden border-zinc-800 bg-transparent card-hover">
             <CardContent className="py-8 sm:py-10">
               <div className="text-center" ref={gridGrowthRef}>
-                <div className="text-4xl sm:text-5xl md:text-6xl font-bold gradient-text mb-4 flex items-center justify-center gap-3">
+                <div className="text-4xl sm:text-5xl md:text-6xl font-semibold text-zinc-100 mb-4 flex items-center justify-center gap-3">
                   <span className="inline-block">1%</span>
-                  <span aria-hidden>→</span>
+                  <span aria-hidden className="text-zinc-500">→</span>
                   <CountUp
                     target={22}
                     start={gridGrowthInView}
@@ -422,7 +386,7 @@ function App() {
                     suffix="%"
                   />
                 </div>
-                <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto">
+                <p className="text-sm sm:text-base text-zinc-500 max-w-xl mx-auto">
                   Grid infrastructure's share of total electricity impact increases from 
                   ~1% today to over 22% in the 1.5°C scenario as generation becomes cleaner.
                 </p>
@@ -437,30 +401,29 @@ function App() {
             step={2}
             title="Today's Grid Infrastructure"
             subtitle="Understanding the current environmental footprint of Germany's electricity transmission and distribution network"
-            accent="amber"
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
             <Card className="lg:col-span-2 card-hover w-full min-w-0">
               <CardHeader className="pb-2">
-                <div className="flex items-center gap-2 text-blue-400 mb-2">
-                  <BarChart3 className="h-5 w-5" />
-                  <CardTitle className="text-lg">Total Impact (2023)</CardTitle>
+                <div className="flex items-center gap-2 text-zinc-300 mb-2">
+                  <BarChart3 className="h-4 w-4" />
+                  <CardTitle className="text-base">Total Impact (2023)</CardTitle>
                 </div>
                 <CardDescription>
                   Combined climate impact of all grid components
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-4xl sm:text-5xl font-bold text-blue-400 mb-2">
+                <div className="text-4xl sm:text-5xl font-semibold text-zinc-100 mb-2">
                   {totalGridImpact.toFixed(2)}
                 </div>
-                <div className="text-sm text-zinc-400 mb-4">
+                <div className="text-sm text-zinc-500 mb-4">
                   Megatonnes of CO₂ equivalent
                 </div>
-                <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                  <p className="text-xs sm:text-sm text-blue-300">
-                    ≈ <strong>4.6 g CO₂-eq/kWh</strong> contribution to Germany's 
+                <div className="p-3 border border-zinc-800 rounded">
+                  <p className="text-xs sm:text-sm text-zinc-400">
+                    ≈ <strong className="text-zinc-200">4.6 g CO₂-eq/kWh</strong> contribution to Germany's 
                     electricity carbon footprint
                   </p>
                 </div>
@@ -469,7 +432,7 @@ function App() {
 
             <Card className="lg:col-span-3 card-hover w-full min-w-0">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Component Breakdown</CardTitle>
+                <CardTitle className="text-base">Component Breakdown</CardTitle>
                 <CardDescription>Climate impact by infrastructure type</CardDescription>
               </CardHeader>
               <CardContent>
@@ -511,14 +474,13 @@ function App() {
             step={3}
             title="Material & Process Analysis"
             subtitle="Tracing the environmental impact from industrial processes through materials to grid components"
-            accent="violet"
           />
 
           <Card className="mb-6 card-hover">
             <CardHeader className="pb-2">
-              <div className="flex items-center gap-2 text-violet-400 mb-2">
-                <Layers className="h-5 w-5" />
-                <CardTitle className="text-lg">Material Flow Diagram</CardTitle>
+              <div className="flex items-center gap-2 text-zinc-300 mb-2">
+                <Layers className="h-4 w-4" />
+                <CardTitle className="text-base">Material Flow Diagram</CardTitle>
               </div>
               <CardDescription>
                 Visualizing how processes contribute to materials, and materials to components
@@ -537,16 +499,15 @@ function App() {
             step={4}
             title="Grid Expansion Scenarios"
             subtitle="Comparing climate pathways: how prospective LCA reveals emission reduction potential"
-            accent="emerald"
           />
 
           {/* Scenario Comparison Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6">
             {[
-              { name: "Static (BAU)", value: "34.5", color: "zinc", change: "Baseline", desc: "Business as usual" },
-              { name: "3°C Scenario", value: "30.4", color: "amber", change: "-12%", desc: "National policies" },
-              { name: "2°C Scenario", value: "28.3", color: "blue", change: "-18%", desc: "1000 Gt budget" },
-              { name: "1.5°C Scenario", value: "26.3", color: "emerald", change: "-23%", desc: "650 Gt budget" },
+              { name: "Static (BAU)", value: "34.5", change: "Baseline", desc: "Business as usual" },
+              { name: "3°C Scenario", value: "30.4", change: "-12%", desc: "National policies" },
+              { name: "2°C Scenario", value: "28.3", change: "-18%", desc: "1000 Gt budget" },
+              { name: "1.5°C Scenario", value: "26.3", change: "-23%", desc: "650 Gt budget" },
             ].map((scenario, index) => (
               <motion.div
                 key={scenario.name}
@@ -555,27 +516,20 @@ function App() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className={`card-hover ${
-                  scenario.color === "emerald" ? "border-emerald-500/30 bg-emerald-950/20" : ""
-                }`}>
+                <Card className="card-hover">
                   <CardContent className="pt-5 text-center">
-                    <div className="text-xs text-zinc-400 mb-1">{scenario.name}</div>
-                    <div className={`text-2xl sm:text-3xl font-bold mb-1 ${
-                      scenario.color === "zinc" ? "text-zinc-400" :
-                      scenario.color === "amber" ? "text-amber-400" :
-                      scenario.color === "blue" ? "text-blue-400" :
-                      "text-emerald-400"
-                    }`}>
+                    <div className="text-xs text-zinc-500 mb-1">{scenario.name}</div>
+                    <div className="text-2xl sm:text-3xl font-semibold text-zinc-100 mb-1">
                       {scenario.value}
                     </div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 mb-2">Mt CO₂-eq</div>
+                    <div className="text-[10px] sm:text-xs text-zinc-600 mb-2">Mt CO₂-eq</div>
                     <Badge 
-                      variant={scenario.change === "Baseline" ? "outline" : "success"} 
+                      variant="outline" 
                       className="text-[10px]"
                     >
                       {scenario.change}
                     </Badge>
-                    <div className="text-[10px] text-zinc-500 mt-2">{scenario.desc}</div>
+                    <div className="text-[10px] text-zinc-600 mt-2">{scenario.desc}</div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -584,9 +538,9 @@ function App() {
 
           <Card className="card-hover">
             <CardHeader className="pb-2">
-              <div className="flex items-center gap-2 text-emerald-400 mb-2">
-                <TrendingUp className="h-5 w-5" />
-                <CardTitle className="text-lg">Expansion Timeline</CardTitle>
+              <div className="flex items-center gap-2 text-zinc-300 mb-2">
+                <TrendingUp className="h-4 w-4" />
+                <CardTitle className="text-base">Expansion Timeline</CardTitle>
               </div>
               <CardDescription>
                 Cumulative climate impact of grid expansion from 2025 to 2045
@@ -604,12 +558,11 @@ function App() {
             step={5}
             title="Future Contributions Explorer"
             subtitle="Compare BAU with climate scenarios across materials, components, processes, and time periods"
-            accent="cyan"
           />
 
           <Card className="card-hover">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Scenario Comparison by Category</CardTitle>
+              <CardTitle className="text-base">Scenario Comparison by Category</CardTitle>
               <CardDescription>
                 Toggle categories and scenarios to see how shares shift over time
               </CardDescription>
@@ -626,14 +579,13 @@ function App() {
             step={6}
             title="Environmental Impact Categories"
             subtitle="Beyond climate change: comprehensive assessment across multiple impact dimensions"
-            accent="lime"
           />
 
           <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <Card variant="success" className="card-hover">
+            <Card className="card-hover">
               <CardHeader className="pb-2">
-                <CardTitle className="text-emerald-100 text-base flex items-center gap-2">
-                  <Leaf className="h-4 w-4" />
+                <CardTitle className="text-zinc-200 text-base flex items-center gap-2">
+                  <Leaf className="h-4 w-4 text-zinc-400" />
                   Most Improved
                 </CardTitle>
               </CardHeader>
@@ -645,42 +597,42 @@ function App() {
                     { name: "Eutrophication", value: "-13%" },
                   ].map((item) => (
                     <div key={item.name} className="flex justify-between items-center">
-                      <span className="text-xs sm:text-sm text-emerald-300">{item.name}</span>
-                      <Badge variant="success" className="text-[10px]">{item.value}</Badge>
+                      <span className="text-xs sm:text-sm text-zinc-400">{item.name}</span>
+                      <Badge variant="outline" className="text-[10px]">{item.value}</Badge>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            <Card variant="warning" className="card-hover">
+            <Card className="card-hover">
               <CardHeader className="pb-2">
-                <CardTitle className="text-amber-100 text-base">Trade-offs</CardTitle>
+                <CardTitle className="text-zinc-200 text-base">Trade-offs</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-amber-300">Land Use</span>
-                    <Badge variant="warning" className="text-[10px]">+18%</Badge>
+                    <span className="text-xs sm:text-sm text-zinc-400">Land Use</span>
+                    <Badge variant="outline" className="text-[10px]">+18%</Badge>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs sm:text-sm text-amber-300">Material Resources</span>
+                    <span className="text-xs sm:text-sm text-zinc-400">Material Resources</span>
                     <Badge variant="outline" className="text-[10px]">+1%</Badge>
                   </div>
                 </div>
-                <p className="mt-3 text-[10px] sm:text-xs text-amber-300/70">
+                <p className="mt-3 text-[10px] sm:text-xs text-zinc-500">
                   Minor increases due to expanded renewable infrastructure
                 </p>
               </CardContent>
             </Card>
 
-            <Card variant="accent" className="card-hover">
+            <Card className="card-hover">
               <CardHeader className="pb-2">
-                <CardTitle className="text-blue-100 text-base">Key Insight</CardTitle>
+                <CardTitle className="text-zinc-200 text-base">Key Insight</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-xs sm:text-sm text-blue-300">
-                  Prospective LCA reveals <strong>significant reductions</strong> across 
+                <p className="text-xs sm:text-sm text-zinc-400">
+                  Prospective LCA reveals <strong className="text-zinc-200">significant reductions</strong> across 
                   most environmental impact categories, with only minor trade-offs 
                   in land use.
                 </p>
@@ -690,7 +642,7 @@ function App() {
 
           <Card className="card-hover">
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Impact Category Comparison</CardTitle>
+              <CardTitle className="text-base">Impact Category Comparison</CardTitle>
               <CardDescription>
                 Relative change vs. business-as-usual (BAU) across all categories
               </CardDescription>
@@ -707,50 +659,42 @@ function App() {
             step={7}
             title="Key Findings"
             subtitle="The essential insights from this prospective life cycle assessment study"
-            accent="rose"
           />
 
           <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
             {[
               {
-                icon: <TrendingUp className="h-6 w-6" />,
+                icon: <TrendingUp className="h-5 w-5" />,
                 title: "23% Reduction Achievable",
                 description: "Prospective LCA reveals potential to reduce estimated grid expansion impact by up to 23% compared to static assessment methods.",
-                color: "emerald"
               },
               {
-                icon: <Zap className="h-6 w-6" />,
+                icon: <Zap className="h-5 w-5" />,
                 title: "Growing Grid Share",
                 description: "As electricity generation decarbonizes, grid infrastructure's relative contribution to total impact increases significantly.",
-                color: "blue"
               },
               {
-                icon: <Layers className="h-6 w-6" />,
+                icon: <Layers className="h-5 w-5" />,
                 title: "Material Hotspots",
                 description: "Overhead lines (aluminum) and transformers (steel/iron) are the largest contributors to grid infrastructure impact.",
-                color: "violet"
               },
             ].map((finding, index) => (
               <motion.div
                 key={finding.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card className="h-full card-hover group">
+                <Card className="h-full card-hover">
                   <CardContent className="pt-6">
-                    <div className={`inline-flex p-3 rounded-xl mb-4 transition-transform group-hover:scale-110 ${
-                      finding.color === "emerald" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
-                      finding.color === "blue" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
-                      "bg-violet-500/10 text-violet-400 border border-violet-500/20"
-                    }`}>
+                    <div className="inline-flex p-2 rounded border border-zinc-800 mb-4 text-zinc-400">
                       {finding.icon}
                     </div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-zinc-100 mb-2">
+                    <h3 className="text-base sm:text-lg font-medium text-zinc-100 mb-2">
                       {finding.title}
                     </h3>
-                    <p className="text-sm text-zinc-400 leading-relaxed">
+                    <p className="text-sm text-zinc-500 leading-relaxed">
                       {finding.description}
                     </p>
                   </CardContent>
@@ -774,19 +718,19 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800/50 mt-16 bg-zinc-900/50">
+      <footer className="border-t border-zinc-800 mt-16">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center">
-                <Cable className="h-4 w-4 text-white" />
+              <div className="h-7 w-7 rounded border border-zinc-700 flex items-center justify-center">
+                <Cable className="h-3.5 w-3.5 text-zinc-400" />
               </div>
-              <span className="text-sm text-zinc-400">PLCA Grid Expansion Explorer</span>
+              <span className="text-sm text-zinc-500">PLCA Grid Expansion Explorer</span>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-500 text-center">
+            <p className="text-xs sm:text-sm text-zinc-600 text-center">
               Data from: <span className="text-zinc-400">Prospective Life Cycle Assessment of Germany's Electricity Grid Expansion</span>
             </p>
-            <Button variant="ghost" size="sm" className="text-zinc-400">
+            <Button variant="ghost" size="sm" className="text-zinc-500">
               <ExternalLink className="h-4 w-4 mr-1.5" />
               View Paper
             </Button>

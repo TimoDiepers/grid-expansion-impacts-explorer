@@ -9,26 +9,26 @@ const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
   ({ className, variant = "default", ...props }, ref) => {
     const variants = {
       default:
-        "border-transparent bg-blue-600/20 text-blue-400 border-blue-500/30",
-      secondary:
-        "border-transparent bg-zinc-800 text-zinc-300 border-zinc-700",
-      destructive:
-        "border-transparent bg-red-600/20 text-red-400 border-red-500/30",
-      outline: 
         "border-zinc-700 bg-transparent text-zinc-300",
+      secondary:
+        "border-zinc-800 bg-transparent text-zinc-400",
+      destructive:
+        "border-red-900/50 bg-transparent text-red-400",
+      outline: 
+        "border-zinc-700 bg-transparent text-zinc-400",
       success:
-        "border-transparent bg-emerald-600/20 text-emerald-400 border-emerald-500/30",
+        "border-emerald-900/50 bg-transparent text-emerald-400",
       warning:
-        "border-transparent bg-amber-600/20 text-amber-400 border-amber-500/30",
+        "border-amber-900/50 bg-transparent text-amber-400",
       info:
-        "border-transparent bg-cyan-600/20 text-cyan-400 border-cyan-500/30",
+        "border-cyan-900/50 bg-transparent text-cyan-400",
     };
 
     return (
       <div
         ref={ref}
         className={cn(
-          "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors",
+          "inline-flex items-center rounded border px-2 py-0.5 text-xs font-medium",
           variants[variant],
           className
         )}

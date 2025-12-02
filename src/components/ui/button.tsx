@@ -4,30 +4,30 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-500 focus-visible:ring-offset-1 focus-visible:ring-offset-black disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-blue-600 text-white shadow-lg shadow-blue-500/25 hover:bg-blue-500 hover:shadow-blue-500/40 active:scale-[0.98]",
+          "bg-zinc-100 text-zinc-900 hover:bg-zinc-200",
         gradient:
-          "bg-gradient-to-r from-blue-600 via-violet-600 to-blue-600 bg-[length:200%_auto] text-white shadow-lg hover:bg-right active:scale-[0.98] transition-all duration-400",
+          "bg-zinc-100 text-zinc-900 hover:bg-zinc-200",
         destructive:
-          "bg-red-600 text-white shadow-lg shadow-red-500/25 hover:bg-red-500 hover:shadow-red-500/40 active:scale-[0.98]",
+          "bg-red-900/50 text-red-100 border border-red-800 hover:bg-red-900/70",
         outline:
-          "border border-zinc-700 bg-transparent text-zinc-100 hover:bg-zinc-800 hover:border-zinc-600",
+          "border border-zinc-700 bg-transparent text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100",
         secondary:
-          "bg-zinc-800 text-zinc-100 hover:bg-zinc-700 active:scale-[0.98]",
+          "bg-zinc-900 text-zinc-300 border border-zinc-800 hover:bg-zinc-800",
         ghost: 
-          "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100",
+          "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200",
         link: 
-          "text-blue-400 underline-offset-4 hover:underline hover:text-blue-300",
+          "text-zinc-400 underline-offset-4 hover:underline hover:text-zinc-200",
       },
       size: {
-        default: "h-10 px-5 py-2",
-        sm: "h-8 rounded-md px-4 text-xs",
-        lg: "h-12 rounded-lg px-8 text-base",
-        icon: "h-10 w-10",
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded px-3 text-xs",
+        lg: "h-10 rounded px-6 text-sm",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {
