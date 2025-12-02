@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-offset-zinc-950 light:focus-visible:ring-offset-white",
   {
     variants: {
       variant: {
@@ -15,13 +15,13 @@ const buttonVariants = cva(
         destructive:
           "bg-red-600 text-white shadow-lg shadow-red-500/25 hover:bg-red-500 hover:shadow-red-500/40 active:scale-[0.98]",
         outline:
-          "border border-zinc-700 bg-transparent text-zinc-100 hover:bg-zinc-800 hover:border-zinc-600",
+          "border bg-transparent dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800 dark:hover:border-zinc-600 light:border-zinc-300 light:text-zinc-700 light:hover:bg-zinc-100 light:hover:border-zinc-400",
         secondary:
-          "bg-zinc-800 text-zinc-100 hover:bg-zinc-700 active:scale-[0.98]",
+          "dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700 light:bg-zinc-200 light:text-zinc-900 light:hover:bg-zinc-300 active:scale-[0.98]",
         ghost: 
-          "text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-100",
+          "dark:text-zinc-400 dark:hover:bg-zinc-800/50 dark:hover:text-zinc-100 light:text-zinc-600 light:hover:bg-zinc-100 light:hover:text-zinc-900",
         link: 
-          "text-blue-400 underline-offset-4 hover:underline hover:text-blue-300",
+          "text-blue-400 underline-offset-4 hover:underline hover:text-blue-300 light:text-blue-600 light:hover:text-blue-700",
       },
       size: {
         default: "h-10 px-5 py-2",
