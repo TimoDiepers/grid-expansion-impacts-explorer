@@ -2,12 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-
-// Set dark mode on document
-document.documentElement.classList.add('dark')
+import { ThemeProvider } from './hooks/use-theme.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <ThemeProvider defaultTheme="dark" storageKey="plca-ui-theme">
+      <App />
+    </ThemeProvider>
   </StrictMode>,
 )

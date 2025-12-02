@@ -13,6 +13,7 @@ import {
 } from "@/components/charts";
 import { electricityImpactData, gridStatusQuoComponents } from "@/data";
 import { CountUp } from "@/components/CountUp";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Zap,
   TrendingUp,
@@ -94,10 +95,10 @@ function SectionHeader({
         </div>
         <Badge variant="secondary" className="text-xs">Step {step} of 7</Badge>
       </div>
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-zinc-100 tracking-tight mb-2">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold dark:text-zinc-100 light:text-zinc-900 tracking-tight mb-2">
         {title}
       </h2>
-      <p className="text-zinc-400 text-sm sm:text-base max-w-2xl">{subtitle}</p>
+      <p className="dark:text-zinc-400 light:text-zinc-600 text-sm sm:text-base max-w-2xl">{subtitle}</p>
     </div>
   );
 }
@@ -119,11 +120,11 @@ function MetricCard({
   color?: "blue" | "emerald" | "violet" | "amber" | "rose";
 }) {
   const colorClasses = {
-    blue: "text-blue-400 bg-gradient-to-br from-blue-950/90 to-blue-900/80 border-blue-500/30",
-    emerald: "text-emerald-400 bg-gradient-to-br from-emerald-950/90 to-emerald-900/80 border-emerald-500/30",
-    violet: "text-violet-400 bg-gradient-to-br from-violet-950/90 to-violet-900/80 border-violet-500/30",
-    amber: "text-amber-400 bg-gradient-to-br from-amber-950/90 to-amber-900/80 border-amber-500/30",
-    rose: "text-rose-400 bg-gradient-to-br from-rose-950/90 to-rose-900/80 border-rose-500/30",
+    blue: "text-blue-400 dark:bg-gradient-to-br dark:from-blue-950/90 dark:to-blue-900/80 light:bg-gradient-to-br light:from-blue-100 light:to-blue-50 border-blue-500/30 light:border-blue-200",
+    emerald: "text-emerald-400 dark:bg-gradient-to-br dark:from-emerald-950/90 dark:to-emerald-900/80 light:bg-gradient-to-br light:from-emerald-100 light:to-emerald-50 border-emerald-500/30 light:border-emerald-200",
+    violet: "text-violet-400 dark:bg-gradient-to-br dark:from-violet-950/90 dark:to-violet-900/80 light:bg-gradient-to-br light:from-violet-100 light:to-violet-50 border-violet-500/30 light:border-violet-200",
+    amber: "text-amber-400 dark:bg-gradient-to-br dark:from-amber-950/90 dark:to-amber-900/80 light:bg-gradient-to-br light:from-amber-100 light:to-amber-50 border-amber-500/30 light:border-amber-200",
+    rose: "text-rose-400 dark:bg-gradient-to-br dark:from-rose-950/90 dark:to-rose-900/80 light:bg-gradient-to-br light:from-rose-100 light:to-rose-50 border-rose-500/30 light:border-rose-200",
   };
 
   return (
@@ -138,7 +139,7 @@ function MetricCard({
       </div>
       <div className="text-2xl sm:text-3xl font-bold mb-1">{value}</div>
       <div className="text-xs sm:text-sm opacity-70">{unit}</div>
-      <div className="text-xs text-zinc-400 mt-2">{label}</div>
+      <div className="text-xs dark:text-zinc-400 light:text-zinc-600 mt-2">{label}</div>
     </div>
   );
 }
@@ -146,12 +147,12 @@ function MetricCard({
 // Scroll indicator component
 function ScrollIndicator() {
   return (
-    <div className="flex flex-col items-center gap-2 text-zinc-500">
+    <div className="flex flex-col items-center gap-2 dark:text-zinc-500 light:text-zinc-400">
       <span className="text-xs uppercase tracking-widest">Scroll to explore</span>
       <motion.div
         animate={{ y: [0, 6, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        className="p-2 rounded-full border border-zinc-800 bg-zinc-900/50"
+        className="p-2 rounded-full dark:border-zinc-800 dark:bg-zinc-900/50 light:border-zinc-300 light:bg-white/50 border"
       >
         <ChevronDown className="h-4 w-4" />
       </motion.div>
@@ -180,9 +181,13 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 overflow-x-hidden relative">
+    <div className="min-h-screen overflow-x-hidden relative transition-colors duration-300">
       {/* Fixed grid background */}
       <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0" />
+      {/* Theme Toggle - Fixed at top right */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
       {/* Hero Section */}
       <section
         ref={heroRef}
@@ -199,7 +204,7 @@ function App() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0, ease: "easeOut" }}
-            className="inline-flex items-center gap-2 bg-zinc-800/50 border border-zinc-700/50 text-zinc-300 px-4 py-2 rounded-full mb-6 will-change-transform"
+            className="inline-flex items-center gap-2 dark:bg-zinc-800/50 dark:border-zinc-700/50 dark:text-zinc-300 light:bg-white/70 light:border-zinc-200 light:text-zinc-700 border px-4 py-2 rounded-full mb-6 will-change-transform"
           >
             <Activity className="h-4 w-4 text-emerald-400" />
             <span className="text-xs sm:text-sm font-medium">Prospective Life Cycle Assessment</span>
@@ -211,7 +216,7 @@ function App() {
             transition={{ duration: 0.6, delay: 0.08, ease: "easeOut" }}
             className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 will-change-transform"
           >
-            <span className="text-zinc-100">Climate Impacts of</span>
+            <span className="dark:text-zinc-100 light:text-zinc-900">Climate Impacts of</span>
             <br />
             <span className="gradient-text">Grid Expansion</span>
           </motion.h1>
@@ -220,7 +225,7 @@ function App() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.16, ease: "easeOut" }}
-            className="text-base sm:text-lg md:text-xl text-zinc-400 mb-10 leading-relaxed max-w-2xl mx-auto will-change-transform"
+            className="text-base sm:text-lg md:text-xl dark:text-zinc-400 light:text-zinc-600 mb-10 leading-relaxed max-w-2xl mx-auto will-change-transform"
           >
             Explore the environmental impact of electricity grid expansion 
             through 2045 for the case of Germany, considering a range of climate pathways
@@ -366,7 +371,7 @@ function App() {
                       value={selectedScenario}
                       onValueChange={(v) => setSelectedScenario(v as typeof selectedScenario)}
                     >
-                      <SelectTrigger className="w-48 bg-zinc-900 border-zinc-800 text-sm">
+                      <SelectTrigger className="w-48 dark:bg-zinc-900 dark:border-zinc-800 light:bg-white light:border-zinc-300 text-sm">
                         <SelectValue placeholder="Select scenario" />
                       </SelectTrigger>
                       <SelectContent>
@@ -422,7 +427,7 @@ function App() {
                     suffix="%"
                   />
                 </div>
-                <p className="text-sm sm:text-base text-zinc-400 max-w-xl mx-auto">
+                <p className="text-sm sm:text-base dark:text-zinc-400 light:text-zinc-600 max-w-xl mx-auto">
                   Grid infrastructure's share of total electricity impact increases from 
                   ~1% today to over 22% in the 1.5°C scenario as generation becomes cleaner.
                 </p>
@@ -455,11 +460,11 @@ function App() {
                 <div className="text-4xl sm:text-5xl font-bold text-blue-400 mb-2">
                   {totalGridImpact.toFixed(2)}
                 </div>
-                <div className="text-sm text-zinc-400 mb-4">
+                <div className="text-sm dark:text-zinc-400 light:text-zinc-600 mb-4">
                   Megatonnes of CO₂ equivalent
                 </div>
-                <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
-                  <p className="text-xs sm:text-sm text-blue-300">
+                <div className="p-3 dark:bg-blue-500/10 light:bg-blue-100 rounded-lg border dark:border-blue-500/20 light:border-blue-200">
+                  <p className="text-xs sm:text-sm dark:text-blue-300 light:text-blue-700">
                     ≈ <strong>4.6 g CO₂-eq/kWh</strong> contribution to Germany's 
                     electricity carbon footprint
                   </p>
@@ -488,7 +493,7 @@ function App() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
               >
-                <Card className="text-center card-hover border-zinc-800/50">
+                <Card className="text-center card-hover dark:border-zinc-800/50 light:border-zinc-200">
                   <CardContent className="pt-5 pb-4">
                     <div
                       className="text-xl sm:text-2xl font-bold mb-1"
@@ -496,7 +501,7 @@ function App() {
                     >
                       {component.value.toFixed(1)}
                     </div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 mb-2">Mt CO₂-eq</div>
+                    <div className="text-[10px] sm:text-xs dark:text-zinc-500 light:text-zinc-500 mb-2">Mt CO₂-eq</div>
                     <Badge variant="secondary" className="text-[10px] sm:text-xs">{component.name}</Badge>
                   </CardContent>
                 </Card>
@@ -556,26 +561,26 @@ function App() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card className={`card-hover ${
-                  scenario.color === "emerald" ? "border-emerald-500/30 bg-emerald-950/20" : ""
+                  scenario.color === "emerald" ? "dark:border-emerald-500/30 dark:bg-emerald-950/20 light:border-emerald-200 light:bg-emerald-50" : ""
                 }`}>
                   <CardContent className="pt-5 text-center">
-                    <div className="text-xs text-zinc-400 mb-1">{scenario.name}</div>
+                    <div className="text-xs dark:text-zinc-400 light:text-zinc-600 mb-1">{scenario.name}</div>
                     <div className={`text-2xl sm:text-3xl font-bold mb-1 ${
-                      scenario.color === "zinc" ? "text-zinc-400" :
+                      scenario.color === "zinc" ? "dark:text-zinc-400 light:text-zinc-500" :
                       scenario.color === "amber" ? "text-amber-400" :
                       scenario.color === "blue" ? "text-blue-400" :
                       "text-emerald-400"
                     }`}>
                       {scenario.value}
                     </div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 mb-2">Mt CO₂-eq</div>
+                    <div className="text-[10px] sm:text-xs dark:text-zinc-500 light:text-zinc-500 mb-2">Mt CO₂-eq</div>
                     <Badge 
                       variant={scenario.change === "Baseline" ? "outline" : "success"} 
                       className="text-[10px]"
                     >
                       {scenario.change}
                     </Badge>
-                    <div className="text-[10px] text-zinc-500 mt-2">{scenario.desc}</div>
+                    <div className="text-[10px] dark:text-zinc-500 light:text-zinc-500 mt-2">{scenario.desc}</div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -741,16 +746,16 @@ function App() {
                 <Card className="h-full card-hover group">
                   <CardContent className="pt-6">
                     <div className={`inline-flex p-3 rounded-xl mb-4 transition-transform group-hover:scale-110 ${
-                      finding.color === "emerald" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
-                      finding.color === "blue" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
-                      "bg-violet-500/10 text-violet-400 border border-violet-500/20"
+                      finding.color === "emerald" ? "dark:bg-emerald-500/10 light:bg-emerald-100 text-emerald-400 border dark:border-emerald-500/20 light:border-emerald-200" :
+                      finding.color === "blue" ? "dark:bg-blue-500/10 light:bg-blue-100 text-blue-400 border dark:border-blue-500/20 light:border-blue-200" :
+                      "dark:bg-violet-500/10 light:bg-violet-100 text-violet-400 border dark:border-violet-500/20 light:border-violet-200"
                     }`}>
                       {finding.icon}
                     </div>
-                    <h3 className="text-lg sm:text-xl font-semibold text-zinc-100 mb-2">
+                    <h3 className="text-lg sm:text-xl font-semibold dark:text-zinc-100 light:text-zinc-900 mb-2">
                       {finding.title}
                     </h3>
-                    <p className="text-sm text-zinc-400 leading-relaxed">
+                    <p className="text-sm dark:text-zinc-400 light:text-zinc-600 leading-relaxed">
                       {finding.description}
                     </p>
                   </CardContent>
@@ -774,19 +779,19 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800/50 mt-16 bg-zinc-900/50">
+      <footer className="border-t dark:border-zinc-800/50 light:border-zinc-200 mt-16 dark:bg-zinc-900/50 light:bg-white/50">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center">
                 <Cable className="h-4 w-4 text-white" />
               </div>
-              <span className="text-sm text-zinc-400">PLCA Grid Expansion Explorer</span>
+              <span className="text-sm dark:text-zinc-400 light:text-zinc-600">PLCA Grid Expansion Explorer</span>
             </div>
-            <p className="text-xs sm:text-sm text-zinc-500 text-center">
-              Data from: <span className="text-zinc-400">Prospective Life Cycle Assessment of Germany's Electricity Grid Expansion</span>
+            <p className="text-xs sm:text-sm dark:text-zinc-500 light:text-zinc-500 text-center">
+              Data from: <span className="dark:text-zinc-400 light:text-zinc-600">Prospective Life Cycle Assessment of Germany's Electricity Grid Expansion</span>
             </p>
-            <Button variant="ghost" size="sm" className="text-zinc-400">
+            <Button variant="ghost" size="sm">
               <ExternalLink className="h-4 w-4 mr-1.5" />
               View Paper
             </Button>
