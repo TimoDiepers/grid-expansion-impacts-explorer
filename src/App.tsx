@@ -71,7 +71,6 @@ function SectionHeader({
   step: number;
   title: string;
   subtitle: string;
-  accent?: "blue" | "emerald" | "violet" | "amber" | "cyan" | "rose" | "indigo" | "teal" | "lime";
 }) {
   return (
     <div className="mb-8 sm:mb-10">
@@ -102,7 +101,6 @@ function MetricCard({
   unit: string;
   trend?: string;
   icon: React.ElementType;
-  color?: "blue" | "emerald" | "violet" | "amber" | "rose";
 }) {
   return (
     <div className="rounded border border-zinc-800 p-4 sm:p-5 bg-transparent">
