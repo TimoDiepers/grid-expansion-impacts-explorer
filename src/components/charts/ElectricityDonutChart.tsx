@@ -10,6 +10,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { CountUp } from "@/components/CountUp";
 
 interface ElectricityDonutChartProps {
   data: {
@@ -39,6 +40,14 @@ export const ELECTRICITY_COLORS: Record<string, string> = {
 
 const GRID_GRADIENT_START = "#645de8ff";
 const GRID_GRADIENT_END = "#a855f7";
+
+function usePrevious<T>(value: T) {
+  const ref = useRef<T>();
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  return ref.current;
+}
 
 function interpolateHexColor(start: string, end: string, t = 0.5) {
   const parse = (hex: string) => hex.replace("#", "").match(/.{2}/g)!.map((h) => parseInt(h, 16));
@@ -78,13 +87,14 @@ function GenerationStackBar({ generation, order, animate }: { generation: Record
   const [active, setActive] = useState<string | null>(null);
 
   return (
-    <div className="w-full mt-3">
+    <div className="w-full">
       <div className="flex items-center justify-between px-2">
         <span className="text-[10px] uppercase tracking-[0.12em] text-zinc-500">Generation mix</span>
       </div>
-      <ChartContainer config={chartConfig} className="h-6 w-full px-2">
+      <ChartContainer config={chartConfig} className="h-6 w-full px-2 mb-2">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} layout="vertical" margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
+          {/* key forces BarChart + bars to remount when order changes so corner radii follow the new edges */}
+          <BarChart key={order.join("-")} data={data} layout="vertical" margin={{ top: 6, right: 6, bottom: 0, left: 0 }}>
             <XAxis type="number" hide domain={[0, 100]} />
             <YAxis type="category" dataKey="label" hide />
             <ChartTooltip
@@ -114,26 +124,30 @@ function GenerationStackBar({ generation, order, animate }: { generation: Record
                 );
               }}
             />
-            {entries.map(([name], idx) => (
-              <Bar
-                key={name}
-                dataKey={name}
-                stackId="mix"
-                fill={ELECTRICITY_COLORS[name] || "#9ca3af"}
-                radius={
-                  idx === 0
-                    ? [8, 0, 0, 8]
-                    : idx === entries.length - 1
-                      ? [0, 8, 8, 0]
-                      : [0, 0, 0, 0]
-                }
-                onMouseEnter={() => setActive(name)}
-                onMouseLeave={() => setActive(null)}
-                isAnimationActive={animate}
-                animationDuration={900}
-                animationBegin={120}
-              />
-            ))}
+            {entries.map(([name], idx) => {
+              const radius = entries.length === 1
+                ? [8, 8, 8, 8]
+                : idx === 0
+                  ? [8, 0, 0, 8]
+                  : idx === entries.length - 1
+                    ? [0, 8, 8, 0]
+                    : [0, 0, 0, 0];
+
+              return (
+                <Bar
+                  key={`${name}-${idx}`}
+                  dataKey={name}
+                  stackId="mix"
+                  fill={ELECTRICITY_COLORS[name] || "#9ca3af"}
+                  radius={radius}
+                  onMouseEnter={() => setActive(name)}
+                  onMouseLeave={() => setActive(null)}
+                  isAnimationActive={animate}
+                  animationDuration={900}
+                  animationBegin={120}
+                />
+              );
+            })}
           </BarChart>
         </ResponsiveContainer>
       </ChartContainer>
@@ -172,10 +186,16 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [hasAnimated, setHasAnimated] = useState(false);
+  const labelDuration = 1.2; // keep in sync with pie animation (1200ms)
 
   useEffect(() => {
     if (isInView && !hasAnimated) setHasAnimated(true);
   }, [isInView, hasAnimated]);
+
+  const previousTotalGCO2e = usePrevious(data.totalGCO2e);
+  const targetTotal = Number(data.totalGCO2e.toFixed(1));
+  const startTotal = previousTotalGCO2e !== undefined ? Number(previousTotalGCO2e.toFixed(1)) : 0;
+  const labelStartValue = hasAnimated ? startTotal : 0;
 
   const { sortedData, chartData, chartConfig, displayOrder } = useMemo(() => {
     const MIN_VALUE = 0.001;
@@ -235,6 +255,7 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
             </defs>
 
             <ChartTooltip
+              wrapperStyle={{ zIndex: 9999, pointerEvents: "none" }}
               content={
                 <ChartTooltipContent
                 formatter={(value, name) => (
@@ -307,19 +328,22 @@ function ElectricityDonutChartComponent({ data }: ElectricityDonutChartProps) {
               )}
             />
           </PieChart>
-      </ChartContainer>
 
-      <div className="mt-1 text-center">
-        <div className="text-sm sm:text-base font-semibold text-gray-100">
-          {data.totalGCO2e} g CO₂-eq/kWh
-        </div>
-        {data.scenario && (
-          <div className="text-[10px] sm:text-xs font-semibold text-gray-300">
-            {data.scenario}
+        <div className="pointer-events-none absolute inset-0 flex items-end justify-center pb-44 z-0">
+          <div className="text-center">
+            <CountUp
+              target={targetTotal}
+              start={isInView}
+              startValue={labelStartValue}
+              duration={labelDuration}
+              decimals={1}
+              className="text-xl sm:text-3xl font-semibold text-gray-100 leading-tight z-0"
+              suffix=" g"
+            />
+            <div className="text-[11px] text-zinc-300 mt-1">CO₂-eq/kWh</div>
           </div>
-        )}
-      </div>
-
+        </div>
+      </ChartContainer>
       <GenerationStackBar generation={data.generation} order={displayOrder} animate={hasAnimated} />
     </div>
   );

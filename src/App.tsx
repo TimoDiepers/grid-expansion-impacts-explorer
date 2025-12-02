@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { motion, useInView, animate, useMotionValue } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import {
   SankeyVisualization,
 } from "@/components/charts";
 import { electricityImpactData, gridStatusQuoComponents } from "@/data";
+import { CountUp } from "@/components/CountUp";
 import {
   Zap,
   TrendingUp,
@@ -31,43 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-function CountUp({
-  target,
-  start = false,
-  duration = 1,
-  delay = 0,
-  startValue = 0,
-  className = "",
-  suffix = "",
-}: {
-  target: number;
-  start?: boolean;
-  duration?: number;
-  delay?: number;
-  startValue?: number;
-  className?: string;
-  suffix?: string;
-}) {
-  const count = useMotionValue(startValue);
-  const [display, setDisplay] = useState(startValue);
-
-  useEffect(() => {
-    count.set(startValue);
-    setDisplay(startValue);
-    if (start) {
-      const controls = animate(count, target, {
-        duration,
-        delay,
-        ease: [0.16, 1, 0.3, 1],
-        onUpdate: (v) => setDisplay(Math.round(v)),
-      });
-      return () => controls.stop();
-    }
-  }, [start, target, duration, delay, count, startValue]);
-
-  return <span className={className}>{display}{suffix}</span>;
-}
 
 // Animated Section component for scroll-triggered animations
 function AnimatedSection({ 
