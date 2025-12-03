@@ -27,8 +27,25 @@ import {
   Cable,
   Sigma,
   ArrowDownToDot,
+  UtilityPole,
+  Unplug,
+  Building2,
+  ToggleLeft,
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import type { GridComponent } from "@/data";
+
+// Helper to get icon component based on icon field
+const getComponentIcon = (icon: GridComponent["icon"]) => {
+  const iconMap = {
+    "utility-pole": UtilityPole,
+    "cable": Cable,
+    "transformer": Unplug,
+    "building": Building2,
+    "toggle-left": ToggleLeft,
+  };
+  return iconMap[icon];
+};
 
 // Animated Section component for scroll-triggered animations
 function AnimatedSection({ 
@@ -469,7 +486,58 @@ function App() {
             accent="amber"
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
+          {/* Component Cards - Infrastructure Overview */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
+            {gridStatusQuoComponents.map((component, index) => {
+              const IconComponent = getComponentIcon(component.icon);
+              return (
+                <motion.div
+                  key={component.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Card className="card-hover border-zinc-800/50 overflow-hidden">
+                    <CardContent className="pt-5 pb-4 px-3 sm:px-4">
+                      <div className="flex flex-col items-center text-center">
+                        <div 
+                          className="p-3 rounded-xl mb-3"
+                          style={{ backgroundColor: `${component.color}20`, color: component.color }}
+                        >
+                          <IconComponent className="h-6 w-6 sm:h-7 sm:w-7" />
+                        </div>
+                        <div className="text-xs sm:text-sm text-zinc-400 mb-1">{component.name}</div>
+                        <div 
+                          className="text-xl sm:text-2xl font-bold"
+                          style={{ color: component.color }}
+                        >
+                          {component.quantity.toLocaleString()}
+                        </div>
+                        <div className="text-[10px] sm:text-xs text-zinc-500">{component.unit}</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Chart and Total Impact */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+            <Card className="lg:col-span-3 card-hover w-full min-w-0">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-2 text-amber-400 mb-2">
+                  <ChartBar className="h-5 w-5" />
+                  <CardTitle className="text-lg">Component Breakdown</CardTitle>
+                </div>
+                <CardDescription>Climate impact by infrastructure type</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <GridStatusQuoChart />
+              </CardContent>
+            </Card>
+
             <Card className="lg:col-span-2 card-hover w-full min-w-0">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2 text-amber-400 mb-2">
@@ -495,47 +563,6 @@ function App() {
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="lg:col-span-3 card-hover w-full min-w-0">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2 text-amber-400 mb-2">
-                  <ChartBar className="h-5 w-5" />
-                  <CardTitle className="text-lg">Component Breakdown</CardTitle>
-                </div>
-                <CardDescription>Climate impact by infrastructure type</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <GridStatusQuoChart />
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Component Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
-            {gridStatusQuoComponents.map((component, index) => (
-              <motion.div
-                key={component.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Card className="text-center card-hover border-zinc-800/50">
-                  <CardContent className="pt-5 pb-4">
-                    <Badge variant="secondary" className="text-[10px] sm:text-xs mb-3">{component.name}</Badge>
-                    <div className="text-lg sm:text-xl font-semibold text-zinc-200 mb-1">
-                      {component.quantity.toLocaleString()} {component.unit}
-                    </div>
-                    <div
-                      className="text-base sm:text-lg font-bold mb-1"
-                      style={{ color: component.color }}
-                    >
-                      {component.value.toFixed(1)} Mt CO₂-eq
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
           </div>
         </AnimatedSection>
 

@@ -5,6 +5,7 @@ export interface GridComponent {
   color: string;
   quantity: number;
   unit: string;
+  icon: "cable" | "utility-pole" | "transformer" | "building" | "toggle-left";
 }
 
 // Data from sankey_data.csv - Grid status quo visualization
@@ -99,11 +100,11 @@ export { default as distributedComponents } from "./distributed_components.json"
 
 // Aggregated sankey data for easier visualization
 export const gridStatusQuoComponents: GridComponent[] = [
-  { name: "Overhead lines", value: 34.70, color: "#1f77b4", quantity: 35000, unit: "km" },
-  { name: "Cables", value: 24.22, color: "#ff7f0e", quantity: 580000, unit: "km" },
-  { name: "Transformers", value: 3.68, color: "#2ca02c", quantity: 850000, unit: "units" },
-  { name: "Substations", value: 1.19, color: "#d62728", quantity: 8500, unit: "units" },
-  { name: "Switchgears", value: 0.98, color: "#9467bd", quantity: 12000, unit: "units" },
+  { name: "Overhead lines", value: 34.70, color: "#1f77b4", quantity: 35000, unit: "km", icon: "utility-pole" },
+  { name: "Cables", value: 24.22, color: "#ff7f0e", quantity: 580000, unit: "km", icon: "cable" },
+  { name: "Transformers", value: 3.68, color: "#2ca02c", quantity: 850000, unit: "units", icon: "transformer" },
+  { name: "Substations", value: 1.19, color: "#d62728", quantity: 8500, unit: "units", icon: "building" },
+  { name: "Switchgears", value: 0.98, color: "#9467bd", quantity: 12000, unit: "units", icon: "toggle-left" },
 ];
 
 export const materialContributions = [
