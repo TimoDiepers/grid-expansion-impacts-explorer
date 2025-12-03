@@ -717,7 +717,7 @@ function App() {
             accent="lime"
           />
 
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
+          <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-6">
             <Card variant="success" className="card-hover">
               <CardHeader className="pb-2">
                 <CardTitle className="text-emerald-100 text-base flex items-center gap-2">
