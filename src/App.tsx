@@ -368,7 +368,7 @@ function App() {
                 className="h-full"
               >
                 <Card className="card-hover h-full flex flex-col">
-                  <CardHeader className="p-4 sm:p-5 flex flex-row items-start justify-between gap-3">
+                  <CardHeader className="p-4 sm:p-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex flex-col gap-1 flex-1 min-w-0">
                       {scenario.scenario !== "Status Quo" ? (
                         <>
@@ -401,7 +401,7 @@ function App() {
                       )}
                     </div>
 
-                    <div className="flex items-start flex-shrink-0 w-auto max-[420px]:w-full">
+                    <div className="flex items-start flex-shrink-0 w-full sm:w-auto sm:justify-end pt-1 sm:pt-0">
                       <div className="flex items-center gap-3 rounded-lg border border-indigo-400/40 bg-gradient-to-br from-[#645de8] to-[#a855f7] px-3 py-2 -m-1 shadow-lg shadow-indigo-900/30 text-left w-auto min-w-[140px]">
                         <span className="relative flex h-2 w-2">
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-200 opacity-75" />
