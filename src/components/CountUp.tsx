@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { animate, useMotionValue } from "framer-motion";
 
@@ -10,6 +11,7 @@ type CountUpProps = {
   decimals?: number;
   className?: string;
   suffix?: string;
+  style?: CSSProperties;
 };
 
 export function CountUp({
@@ -21,6 +23,7 @@ export function CountUp({
   decimals = 0,
   className = "",
   suffix = "",
+  style,
 }: CountUpProps) {
   const count = useMotionValue(startValue);
   const [display, setDisplay] = useState(startValue);
@@ -60,7 +63,7 @@ export function CountUp({
     : display;
 
   return (
-    <span className={className}>
+    <span className={className} style={style}>
       {formatted}
       {suffix}
     </span>

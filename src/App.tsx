@@ -27,8 +27,103 @@ import {
   Cable,
   Sigma,
   ArrowDownToDot,
+  UtilityPole,
+  Unplug,
+  Building2,
+  ToggleLeft,
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import type { GridComponent } from "@/data";
+
+// Helper to get icon component based on icon field
+const getComponentIcon = (icon: GridComponent["icon"]) => {
+  const iconMap = {
+    "utility-pole": UtilityPole,
+    "cable": Cable,
+    "transformer": Unplug,
+    "building": Building2,
+    "toggle-left": ToggleLeft,
+  };
+  return iconMap[icon];
+};
+
+// Grid Component Card with individual inView animation
+function GridComponentCard({ component, index }: { component: GridComponent; index: number }) {
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(cardRef, { once: true, margin: "0px 0px -10% 0px" });
+  const IconComponent = getComponentIcon(component.icon);
+  
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <Card className="card-hover border-zinc-800/50 overflow-hidden">
+        <CardContent className="pt-5 pb-4 px-3 sm:px-4">
+          <div className="flex flex-col items-center text-center">
+            <div 
+              className="p-3 rounded-xl mb-3"
+              style={{ backgroundColor: `${component.color}20`, color: component.color }}
+            >
+              <IconComponent className="h-6 w-6 sm:h-7 sm:w-7" />
+            </div>
+            <div className="text-xs sm:text-sm text-zinc-400 mb-1">{component.name}</div>
+            <CountUp
+              target={component.displayQuantity}
+              start={isInView}
+              duration={1}
+              suffix={component.quantitySuffix}
+              className="text-xl sm:text-2xl font-bold"
+              style={{ color: component.color }}
+            />
+            <div className="text-[10px] sm:text-xs text-zinc-500">{component.unit}</div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
+// Total Impact Card with individual inView animation
+function TotalImpactCard({ totalGridImpact }: { totalGridImpact: number }) {
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(cardRef, { once: true, margin: "0px 0px -10% 0px" });
+  
+  return (
+    <Card ref={cardRef} className="lg:col-span-2 card-hover w-full min-w-0">
+      <CardHeader className="pb-2">
+        <div className="flex items-center gap-2 text-amber-400 mb-2">
+          <Sigma className="h-5 w-5" />
+          <CardTitle>Total Impact (2023)</CardTitle>
+        </div>
+        <CardDescription>
+          Combined climate impact of all grid components
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <CountUp
+          target={totalGridImpact}
+          start={isInView}
+          duration={1}
+          decimals={2}
+          className="text-4xl sm:text-5xl font-bold text-amber-400 mb-2 block"
+        />
+        <div className="text-sm text-zinc-400 mb-4">
+          Megatonnes of CO₂ equivalent
+        </div>
+        <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
+          <p className="text-xs sm:text-sm text-amber-300">
+            ≈ <strong>4.6 g CO₂-eq/kWh</strong> contribution to Germany's 
+            electricity carbon footprint
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 // Animated Section component for scroll-triggered animations
 function AnimatedSection({ 
@@ -469,32 +564,16 @@ function App() {
             accent="amber"
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
-            <Card className="lg:col-span-2 card-hover w-full min-w-0">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2 text-amber-400 mb-2">
-                  <Sigma className="h-5 w-5" />
-                  <CardTitle>Total Impact (2023)</CardTitle>
-                </div>
-                <CardDescription>
-                  Combined climate impact of all grid components
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-4xl sm:text-5xl font-bold text-amber-400 mb-2">
-                  {totalGridImpact.toFixed(2)}
-                </div>
-                <div className="text-sm text-zinc-400 mb-4">
-                  Megatonnes of CO₂ equivalent
-                </div>
-                <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/20">
-                  <p className="text-xs sm:text-sm text-amber-300">
-                    ≈ <strong>4.6 g CO₂-eq/kWh</strong> contribution to Germany's 
-                    electricity carbon footprint
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Component Cards - Infrastructure Overview */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4 mb-8">
+            {gridStatusQuoComponents.map((component, index) => (
+              <GridComponentCard key={component.name} component={component} index={index} />
+            ))}
+          </div>
+
+          {/* Total Impact and Chart */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+            <TotalImpactCard totalGridImpact={totalGridImpact} />
 
             <Card className="lg:col-span-3 card-hover w-full min-w-0">
               <CardHeader className="pb-2">
@@ -508,32 +587,6 @@ function App() {
                 <GridStatusQuoChart />
               </CardContent>
             </Card>
-          </div>
-
-          {/* Component Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
-            {gridStatusQuoComponents.map((component, index) => (
-              <motion.div
-                key={component.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <Card className="text-center card-hover border-zinc-800/50">
-                  <CardContent className="pt-5 pb-4">
-                    <div
-                      className="text-xl sm:text-2xl font-bold mb-1"
-                      style={{ color: component.color }}
-                    >
-                      {component.value.toFixed(1)}
-                    </div>
-                    <div className="text-[10px] sm:text-xs text-zinc-500 mb-2">Mt CO₂-eq</div>
-                    <Badge variant="secondary" className="text-[10px] sm:text-xs">{component.name}</Badge>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
           </div>
         </AnimatedSection>
 
