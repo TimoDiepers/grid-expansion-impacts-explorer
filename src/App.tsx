@@ -35,7 +35,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BarChart } from "recharts";
 
 // Animated Section component for scroll-triggered animations
 function AnimatedSection({ 
