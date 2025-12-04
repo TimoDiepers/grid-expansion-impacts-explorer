@@ -16,6 +16,7 @@ import { CountUp } from "@/components/CountUp";
 import {
   Zap,
   TrendingUp,
+  TrendingDown,
   Layers,
   BarChart3,
   ChartBar,
@@ -31,6 +32,9 @@ import {
   Unplug,
   Building2,
   ToggleLeft,
+  TriangleAlert,
+  Crown,
+  Brain,
 } from "lucide-react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { GridComponent } from "@/data";
@@ -364,7 +368,7 @@ function App() {
                 value="-23%"
                 unit="vs BAU"
                 trend="1.5°C"
-                icon={TrendingUp}
+                icon={TrendingDown}
                 color="emerald"
               />
             </motion.div>
@@ -721,7 +725,7 @@ function App() {
             <Card variant="success" className="card-hover">
               <CardHeader className="pb-2">
                 <CardTitle className="text-emerald-100 text-base flex items-center gap-2">
-                  <Leaf className="h-4 w-4" />
+                  <Crown className="h-5 w-5" />
                   Most Improved
                 </CardTitle>
               </CardHeader>
@@ -743,7 +747,10 @@ function App() {
 
             <Card variant="warning" className="card-hover">
               <CardHeader className="pb-2">
-                <CardTitle className="text-amber-100 text-base">Trade-offs</CardTitle>
+                <CardTitle className="text-amber-100 text-base flex items-center gap-2">
+                  <TriangleAlert className="h-5 w-5" />
+                  Trade-offs
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -764,7 +771,10 @@ function App() {
 
             <Card variant="accent" className="card-hover">
               <CardHeader className="pb-2">
-                <CardTitle className="text-blue-100 text-base">Key Insight</CardTitle>
+                <CardTitle className="text-blue-100 text-base flex items-center gap-2">
+                  <Brain className="h-5 w-5" />
+                  Key Insight
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-xs sm:text-sm text-blue-300">
